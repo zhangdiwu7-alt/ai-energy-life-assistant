@@ -1,0 +1,1302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="color-scheme" content="light">
+ <title>AI Energy Life Assistant｜系统实现与技术可行性报告</title>
+ <style>
+ :root {
+ --ink: #172033;
+ --muted: #5e6b7e;
+ --line: #dbe3ee;
+ --paper: #ffffff;
+ --canvas: #f4f7fb;
+ --navy: #0b1830;
+ --blue: #1769e0;
+ --blue-soft: #eaf2ff;
+ --cyan: #12a7aa;
+ --cyan-soft: #e7f8f7;
+ --green: #18794e;
+ --green-soft: #e9f7ef;
+ --amber: #a15c00;
+ --amber-soft: #fff4dc;
+ --purple: #6f42c1;
+ --purple-soft: #f1ebff;
+ --red: #b42318;
+ --red-soft: #ffefed;
+ --shadow: 0 18px 50px rgba(22, 46, 84, .10);
+ --radius: 18px;
+ }
+
+ * { box-sizing: border-box; }
+ html { scroll-behavior: smooth; }
+ body {
+ margin: 0;
+ color: var(--ink);
+ background: var(--canvas);
+ font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", system-ui, -apple-system, sans-serif;
+ font-size: 15px;
+ line-height: 1.72;
+ }
+ a { color: var(--blue); text-underline-offset: 3px; }
+ h1, h2, h3, h4 { margin: 0; line-height: 1.3; letter-spacing: -.02em; }
+ h2 { margin: 0 0 20px; font-size: 26px; }
+ h3 { margin: 26px 0 12px; font-size: 19px; }
+ h4 { margin: 18px 0 8px; font-size: 16px; }
+ p { margin: 10px 0; }
+ ul, ol { margin: 10px 0; padding-left: 1.35rem; }
+ li + li { margin-top: 5px; }
+ strong { color: #101827; }
+ code, pre { font-family: Consolas, "SFMono-Regular", monospace; }
+
+ .skip-link {
+ position: fixed;
+ left: 12px;
+ top: -60px;
+ z-index: 100;
+ padding: 9px 14px;
+ color: #fff;
+ background: var(--blue);
+ border-radius: 8px;
+ }
+ .skip-link:focus { top: 12px; }
+
+ .hero {
+ position: relative;
+ overflow: hidden;
+ color: #fff;
+ background:
+  radial-gradient(circle at 78% 18%, rgba(55, 205, 202, .28), transparent 30%),
+  radial-gradient(circle at 95% 100%, rgba(57, 117, 255, .38), transparent 40%),
+  linear-gradient(125deg, #081326 0%, #102a56 58%, #0e4771 100%);
+ padding: 64px 24px 54px;
+ }
+ .hero::after {
+ content: "";
+ position: absolute;
+ right: -90px;
+ top: -130px;
+ width: 360px;
+ height: 360px;
+ border: 1px solid rgba(255,255,255,.13);
+ border-radius: 50%;
+ box-shadow: 0 0 0 55px rgba(255,255,255,.035), 0 0 0 110px rgba(255,255,255,.025);
+ }
+ .hero-inner { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; }
+ .eyebrow {
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ margin-bottom: 18px;
+ font-size: 12px;
+ font-weight: 800;
+ letter-spacing: .12em;
+ text-transform: uppercase;
+ color: #9fe7e4;
+ }
+ .eyebrow::before { content: ""; width: 28px; height: 2px; background: currentColor; }
+ .hero h1 { max-width: 900px; font-size: clamp(34px, 5vw, 58px); }
+ .hero .subtitle { max-width: 870px; margin: 18px 0 0; color: #d8e7fb; font-size: 17px; }
+ .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+ .hero-chip {
+ padding: 7px 11px;
+ border: 1px solid rgba(255,255,255,.22);
+ border-radius: 999px;
+ color: #edf6ff;
+ background: rgba(255,255,255,.07);
+ font-size: 12px;
+ backdrop-filter: blur(4px);
+ }
+ .hero-actions { margin-top: 24px; }
+ .print-btn {
+ cursor: pointer;
+ border: 0;
+ border-radius: 10px;
+ padding: 10px 15px;
+ color: #0a2545;
+ background: #fff;
+ font: inherit;
+ font-size: 13px;
+ font-weight: 800;
+ box-shadow: 0 8px 24px rgba(0,0,0,.15);
+ }
+
+ .page-shell {
+ display: grid;
+ grid-template-columns: 240px minmax(0, 1fr);
+ gap: 28px;
+ max-width: 1260px;
+ margin: 0 auto;
+ padding: 30px 24px 72px;
+ }
+ .toc {
+ position: sticky;
+ top: 18px;
+ align-self: start;
+ max-height: calc(100vh - 36px);
+ overflow: auto;
+ padding: 18px;
+ border: 1px solid var(--line);
+ border-radius: 15px;
+ background: rgba(255,255,255,.92);
+ box-shadow: 0 10px 30px rgba(22,46,84,.06);
+ }
+ .toc-title { margin-bottom: 10px; font-size: 12px; font-weight: 800; color: var(--muted); letter-spacing: .12em; }
+ .toc a {
+ display: block;
+ padding: 6px 8px;
+ border-radius: 7px;
+ color: #33445c;
+ text-decoration: none;
+ font-size: 12px;
+ line-height: 1.42;
+ }
+ .toc a:hover, .toc a:focus { color: var(--blue); background: var(--blue-soft); }
+
+ main { min-width: 0; }
+ section {
+ scroll-margin-top: 20px;
+ margin-bottom: 24px;
+ padding: 34px;
+ border: 1px solid var(--line);
+ border-radius: var(--radius);
+ background: var(--paper);
+ box-shadow: var(--shadow);
+ }
+ .section-kicker {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ margin-bottom: 8px;
+ color: var(--blue);
+ font-size: 12px;
+ font-weight: 800;
+ letter-spacing: .11em;
+ text-transform: uppercase;
+ }
+ .section-kicker .num {
+ display: inline-grid;
+ place-items: center;
+ width: 27px;
+ height: 27px;
+ color: #fff;
+ background: var(--blue);
+ border-radius: 8px;
+ letter-spacing: 0;
+ }
+ .lede { margin: -8px 0 20px; color: var(--muted); }
+
+ .decision-banner {
+ display: grid;
+ grid-template-columns: auto 1fr;
+ gap: 14px;
+ margin: 22px 0 4px;
+ padding: 18px;
+ border: 1px solid #b8d2fb;
+ border-radius: 14px;
+ background: linear-gradient(120deg, #edf5ff, #f7fbff);
+ }
+ .decision-icon {
+ display: grid;
+ place-items: center;
+ width: 38px;
+ height: 38px;
+ color: #fff;
+ background: var(--blue);
+ border-radius: 11px;
+ font-weight: 900;
+ }
+
+ .grid-2, .grid-3, .grid-4 { display: grid; gap: 14px; }
+ .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+ .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+ .metric, .mini-card {
+ padding: 17px;
+ border: 1px solid var(--line);
+ border-radius: 13px;
+ background: #fbfdff;
+ }
+ .metric strong { display: block; margin-bottom: 3px; font-size: 18px; color: var(--blue); }
+ .metric span, .mini-card p { color: var(--muted); font-size: 13px; }
+ .mini-card h4 { margin-top: 0; }
+
+ .tag {
+ display: inline-block;
+ margin: 2px 4px 2px 0;
+ padding: 3px 8px;
+ border: 1px solid transparent;
+ border-radius: 999px;
+ font-size: 11px;
+ font-weight: 800;
+ white-space: nowrap;
+ }
+ .tag.fact { color: var(--green); border-color: #a9dbc0; background: var(--green-soft); }
+ .tag.assumption { color: var(--amber); border-color: #f0c979; background: var(--amber-soft); }
+ .tag.verify { color: var(--purple); border-color: #cbb8f3; background: var(--purple-soft); }
+ .tag.decision { color: var(--blue); border-color: #b5cef5; background: var(--blue-soft); }
+ .tag.p0 { color: #fff; background: var(--red); }
+ .tag.p1 { color: #fff; background: var(--blue); }
+ .tag.p2 { color: #fff; background: #6b7280; }
+
+ .callout {
+ margin: 16px 0;
+ padding: 14px 16px;
+ border-left: 4px solid var(--blue);
+ border-radius: 0 11px 11px 0;
+ background: var(--blue-soft);
+ }
+ .callout.warning { border-color: #d98200; background: var(--amber-soft); }
+ .callout.danger { border-color: var(--red); background: var(--red-soft); }
+ .callout.success { border-color: var(--green); background: var(--green-soft); }
+ .callout p:first-child { margin-top: 0; }
+ .callout p:last-child { margin-bottom: 0; }
+
+ .table-wrap { overflow-x: auto; margin: 13px 0 20px; border: 1px solid var(--line); border-radius: 12px; }
+ table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
+ th, td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+ th { color: #32435c; background: #f3f7fc; font-weight: 800; white-space: nowrap; }
+ tr:last-child td { border-bottom: 0; }
+ tbody tr:hover { background: #fbfdff; }
+ .nowrap { white-space: nowrap; }
+
+ pre {
+ overflow: auto;
+ margin: 14px 0;
+ padding: 17px;
+ border: 1px solid #223657;
+ border-radius: 12px;
+ color: #e8f2ff;
+ background: #101d32;
+ font-size: 12px;
+ line-height: 1.58;
+ }
+ .formula {
+ overflow-x: auto;
+ padding: 14px 16px;
+ border: 1px dashed #9cb9e6;
+ border-radius: 10px;
+ color: #183b67;
+ background: #f7fbff;
+ font-family: Consolas, "SFMono-Regular", monospace;
+ font-size: 13px;
+ white-space: nowrap;
+ }
+
+ .architecture { display: grid; gap: 10px; margin: 19px 0; }
+ .arch-row {
+ display: grid;
+ grid-template-columns: 125px 1fr;
+ gap: 12px;
+ align-items: stretch;
+ }
+ .arch-label {
+ display: grid;
+ place-items: center;
+ padding: 12px;
+ border-radius: 11px;
+ color: #fff;
+ background: var(--navy);
+ font-size: 12px;
+ font-weight: 800;
+ text-align: center;
+ }
+ .arch-items { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+ .arch-item {
+ display: grid;
+ place-items: center;
+ min-height: 58px;
+ padding: 10px;
+ border: 1px solid #c8d8ed;
+ border-radius: 11px;
+ color: #29415f;
+ background: #f7fbff;
+ font-size: 12px;
+ font-weight: 700;
+ text-align: center;
+ }
+ .arch-row::after {
+ content: "↓";
+ grid-column: 2;
+ height: 0;
+ position: relative;
+ top: -5px;
+ color: #7695ba;
+ text-align: center;
+ font-weight: 900;
+ }
+ .arch-row:last-child::after { display: none; }
+
+ .flow-line {
+ display: flex;
+ flex-wrap: wrap;
+ align-items: center;
+ gap: 8px;
+ margin: 16px 0;
+ }
+ .flow-node {
+ flex: 1 1 128px;
+ padding: 10px 12px;
+ border: 1px solid #c6d6ea;
+ border-radius: 10px;
+ background: #f8fbff;
+ font-size: 12px;
+ font-weight: 750;
+ text-align: center;
+ }
+ .flow-arrow { color: var(--blue); font-weight: 900; }
+
+ .sequence { display: grid; gap: 9px; margin: 14px 0; counter-reset: seq; }
+ .sequence-step {
+ position: relative;
+ display: grid;
+ grid-template-columns: 34px 145px 1fr;
+ gap: 12px;
+ align-items: start;
+ padding: 12px 14px;
+ border: 1px solid var(--line);
+ border-radius: 11px;
+ background: #fbfdff;
+ }
+ .sequence-step::before {
+ counter-increment: seq;
+ content: counter(seq);
+ display: grid;
+ place-items: center;
+ width: 28px;
+ height: 28px;
+ color: #fff;
+ background: var(--blue);
+ border-radius: 50%;
+ font-size: 12px;
+ font-weight: 900;
+ }
+ .sequence-actor { color: #3c5371; font-size: 12px; font-weight: 900; }
+ .sequence-action { font-size: 13px; }
+ .sequence-note { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+
+ .phase {
+ position: relative;
+ padding-left: 24px;
+ margin: 0 0 14px;
+ }
+ .phase::before {
+ content: "";
+ position: absolute;
+ left: 5px;
+ top: 7px;
+ bottom: -20px;
+ width: 2px;
+ background: #cbd9eb;
+ }
+ .phase:last-child::before { display: none; }
+ .phase::after {
+ content: "";
+ position: absolute;
+ left: 0;
+ top: 5px;
+ width: 12px;
+ height: 12px;
+ border: 3px solid var(--blue);
+ border-radius: 50%;
+ background: #fff;
+ }
+ .phase strong { color: var(--blue); }
+
+ .evidence-legend { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 18px; }
+ details {
+ margin: 12px 0;
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ background: #fbfdff;
+ }
+ summary { cursor: pointer; padding: 11px 13px; font-weight: 800; }
+ details > div { padding: 0 13px 13px; }
+ .footnote { color: var(--muted); font-size: 12px; }
+ .page-footer { max-width: 1180px; margin: -42px auto 36px; padding: 0 24px; color: var(--muted); font-size: 11px; text-align: center; }
+
+ @media (max-width: 980px) {
+ .page-shell { grid-template-columns: 1fr; }
+ .toc { position: static; max-height: none; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
+ .toc-title { grid-column: 1 / -1; }
+ .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+ .arch-items { grid-template-columns: repeat(2, minmax(0,1fr)); }
+ }
+ @media (max-width: 680px) {
+ body { font-size: 14px; }
+ .hero { padding: 46px 18px 38px; }
+ .hero h1 { font-size: 34px; }
+ .page-shell { padding: 18px 12px 56px; }
+ section { padding: 23px 18px; border-radius: 14px; }
+ .toc { grid-template-columns: 1fr; }
+ .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+ .arch-row { grid-template-columns: 1fr; }
+ .arch-items { grid-template-columns: 1fr; }
+ .arch-row::after { grid-column: 1; }
+ .sequence-step { grid-template-columns: 34px 1fr; }
+ .sequence-action { grid-column: 2; }
+ .decision-banner { grid-template-columns: 1fr; }
+ h2 { font-size: 23px; }
+ }
+
+ @media print {
+ @page { size: A4; margin: 14mm 12mm 15mm; }
+ :root { --shadow: none; }
+ html { scroll-behavior: auto; }
+ body { color: #111; background: #fff; font-size: 10.2pt; line-height: 1.55; }
+ .hero { padding: 24mm 12mm 18mm; background: #102a56 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+ .hero h1 { font-size: 28pt; }
+ .hero .subtitle { font-size: 11pt; }
+ .hero-actions, .toc, .skip-link { display: none !important; }
+ .page-shell { display: block; max-width: none; padding: 8mm 0 0; }
+ section { margin: 0 0 6mm; padding: 7mm; border-color: #ccd3dc; break-inside: auto; }
+ h2, h3, h4 { break-after: avoid-page; }
+ table, pre, .callout, .mini-card, .metric, .decision-banner, .sequence-step, .arch-row { break-inside: avoid; }
+ .table-wrap { overflow: visible; }
+ table { font-size: 8.2pt; }
+ th, td { padding: 5px 6px; }
+ a { color: inherit; text-decoration: none; }
+ a[href^="http"]::after { content: ""; }
+ details { break-inside: avoid; }
+ details > div { display: block !important; }
+ .page-footer { margin: 0; padding: 4mm 0; }
+ }
+ </style>
+</head>
+<body>
+ <a class="skip-link" href="#content">跳到正文</a>
+
+ <header class="hero">
+ <div class="hero-inner">
+ <div class="eyebrow">System Implementation Report · Pre-MVP</div>
+ <h1>AI Energy Life Assistant<br>系统实现与技术可行性报告</h1>
+ <p class="subtitle">以“可验证地省电、省钱”为核心，评估 储能系统 能源数据、AI 预测、约束优化、语音交互与跨设备联动的实现路径，并给出上线边界与 Go / No-Go 门槛。</p>
+ <div class="hero-meta">
+  <span class="hero-chip">版本 V1.0</span>
+  <span class="hero-chip">评估日期 2026-08-25</span>
+  <span class="hero-chip">状态：技术预研 / 立项前</span>
+  <span class="hero-chip">建议：有条件 Go（嵌入式 储能系统 MVP）</span>
+ </div>
+ <div class="hero-actions"><button class="print-btn" type="button" onclick="window.print()">打印 / 导出 PDF</button></div>
+ </div>
+ </header>
+
+ <div class="page-shell">
+ <nav class="toc" aria-label="报告目录">
+ <div class="toc-title">CONTENTS</div>
+ <a href="#summary">00 · 执行摘要与证据口径</a>
+ <a href="#definition">01 · 问题分析与产品定义</a>
+ <a href="#scope">02 · MVP 范围与非目标</a>
+ <a href="#architecture">03 · 系统方案与分层架构</a>
+ <a href="#data-model">04 · 核心数据模型</a>
+ <a href="#modules">05 · 四个模块技术方案</a>
+ <a href="#ai-boundary">06 · AI / 优化器 / LLM 职责</a>
+ <a href="#interfaces">07 · 接口、事件与命令流</a>
+ <a href="#sequences">08 · 三个关键时序</a>
+ <a href="#security">09 · 权限、安全与隐私</a>
+ <a href="#reliability">10 · 可靠性与离线降级</a>
+ <a href="#testing">11 · 测试与验收指标</a>
+ <a href="#deployment">12 · 部署、监控与回滚</a>
+ <a href="#schedule">13 · 排期、人员与依赖</a>
+ <a href="#limitations">14 · 已知限制与未来规划</a>
+ <a href="#go-no-go">15 · Go / No-Go 决策</a>
+ <a href="#sources">附录 · 官方资料与术语</a>
+ </nav>
+
+ <main id="content">
+ <section id="summary">
+  <div class="section-kicker"><span class="num">00</span>Executive Summary</div>
+  <h2>执行摘要与证据口径</h2>
+  <p class="lede">先判断“已有能力是什么”，再决定“新系统需要建设什么”；产品页面能力不等于统一开放接口，AI 能预测也不等于可以接管电气安全。</p>
+
+  <div class="decision-banner">
+  <div class="decision-icon">✓</div>
+  <div>
+  <strong>当前建议：有条件 Go，但只建设嵌入现有 能源 App 的小范围 MVP。</strong>
+  <p>先服务“新款 储能系统 ＋兼容智能电表＋有峰谷/动态电价”的真实家庭，完成数据—预测—建议—确认—执行—节省验证闭环；暂不建设独立全量 App，不做 无线耳机 专属唤醒和深度固件，不承诺跨全系列设备自动联动。</p>
+  </div>
+  </div>
+
+  <div class="grid-4" style="margin-top:16px">
+  <div class="metric"><strong>中高</strong><span>单一新款 储能系统 的数据接入可行性</span></div>
+  <div class="metric"><strong>中高</strong><span>复用 智能模式 预测能力的可行性</span></div>
+  <div class="metric"><strong>中</strong><span>跨产品线联动的规模化可行性</span></div>
+  <div class="metric"><strong>14–16 周</strong><span>前提满足时的受控生产MVP周期</span></div>
+  </div>
+
+  <h3>证据标签</h3>
+  <div class="evidence-legend">
+  <span class="tag fact">官方公开能力</span>
+  <span class="tag assumption">方案假设</span>
+  <span class="tag verify">内部待确认</span>
+  <span class="tag decision">设计决策</span>
+  </div>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>口径</th><th>本报告如何使用</th><th>不能被误写成什么</th></tr></thead>
+  <tbody>
+   <tr><td><span class="tag fact">官方公开能力</span></td><td>储能系统智能模式 已公开具备未来发电、负载、电价预测与充放电调度；部分新设备支持本地 Modbus / Home Assistant。</td><td>不等于所有 储能系统 设备具备同样能力，也不等于已有全系列统一公共 API。</td></tr>
+   <tr><td><span class="tag verify">内部待确认</span></td><td>消费端内部 API、历史粒度、保留期、事件总线、跨产品账号映射、控制指令 SLA。</td><td>在接口审计完成前，不作为排期和商业承诺的既定事实。</td></tr>
+   <tr><td><span class="tag assumption">方案假设</span></td><td>由内部设备平台提供受控读接口和低风险写接口；MVP 可使用同一 用户账号体系。</td><td>不是当前对外承诺，需在 Gate 0 验证。</td></tr>
+   <tr><td><span class="tag decision">设计决策</span></td><td>LLM 只解释和编排工具；电气切换、BMS 保护、逆变器并离网控制始终由认证固件和安全控制器负责。</td><td>绝不描述为“AI 检测停电并直接切换供电”。</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <div class="callout warning">
+  <strong>最关键的技术不确定性</strong>
+  <p>不是“能否做出一个预测模型”，而是现有 储能系统 能源数据和 智能模式 输出能否通过稳定、合规、可观测的内部接口被新体验复用，并在不同代际、地区和固件上保持一致语义。</p>
+  </div>
+ </section>
+
+ <section id="definition">
+  <div class="section-kicker"><span class="num">01</span>Problem &amp; Definition</div>
+  <h2>问题分析与产品定义</h2>
+  <p class="lede">用户需要的不是更多曲线，而是知道“下一步做什么、能省多少钱、执行后是否真的省到”。</p>
+
+  <div class="grid-3">
+  <article class="mini-card">
+  <h4>信息割裂</h4>
+  <p>光伏、储能、家庭负载、天气、电价与设备状态分散，用户难以形成可行动结论。</p>
+  </article>
+  <article class="mini-card">
+  <h4>反馈滞后</h4>
+  <p>电费通常到月底才被看见，用户无法在高价时段到来前干预。</p>
+  </article>
+  <article class="mini-card">
+  <h4>价值不可信</h4>
+  <p>若没有反事实基线和执行证据，“AI 帮你省钱”会退化成不可核验的营销话术。</p>
+  </article>
+  </div>
+
+  <h3>产品定义</h3>
+  <div class="callout success">
+  <strong>AI Energy Life Assistant 是“家庭能源运营助手”，不是新的设备遥控器。</strong>
+  <p>系统基于用户授权的数据预测能源机会，在安全和舒适约束内生成可执行方案，经用户确认或既定授权后由设备平台执行，并以“预计节省 / 已验证节省 / 可信度”持续反馈。</p>
+  </div>
+
+  <div class="flow-line" aria-label="核心价值闭环">
+  <div class="flow-node">感知<br><small>能源 / 电价 / 天气</small></div><span class="flow-arrow">→</span>
+  <div class="flow-node">预测<br><small>PV / 负载 / 价格</small></div><span class="flow-arrow">→</span>
+  <div class="flow-node">优化<br><small>满足约束的计划</small></div><span class="flow-arrow">→</span>
+  <div class="flow-node">授权执行<br><small>设备平台落地</small></div><span class="flow-arrow">→</span>
+  <div class="flow-node">验证<br><small>净节省与解释</small></div>
+  </div>
+
+  <h3>目标用户分层</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>层级</th><th>可用数据</th><th>可交付价值</th><th>技术边界</th></tr></thead>
+  <tbody>
+   <tr><td>L1 能源评估</td><td>账单、地区费率、家庭问卷</td><td>发现节省潜力、给出区间估算</td><td>不能宣称实时监测或“已验证节省”</td></tr>
+   <tr><td>L2 能源连接</td><td>智能电表、兼容插座或电力公司数据</td><td>监测、异常识别、部分效果验证</td><td>缺少 储能系统 时不能调度光伏储能</td></tr>
+   <tr><td><strong>L3 能源托管（MVP）</strong></td><td>储能系统、智能电表、电价、天气</td><td>预测、充放电建议、低风险执行、节省验证</td><td>仅支持通过能力注册和固件认证的设备组合</td></tr>
+  </tbody>
+  </table>
+  </div>
+ </section>
+
+ <section id="scope">
+  <div class="section-kicker"><span class="num">02</span>Scope &amp; Non-goals</div>
+  <h2>MVP 范围与非目标</h2>
+  <p class="lede">范围收缩是可行性的前提：先证明能源闭环，不为“整合三条产品线”强行制造低频功能。</p>
+
+  <h3>优先级与交付边界</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>优先级</th><th>能力</th><th>范围说明</th></tr></thead>
+  <tbody>
+   <tr><td><span class="tag p0">P0</span></td><td>能源数据接入与质量标记</td><td>一个目标市场、一组新款 储能系统＋兼容智能电表；统一 15 分钟分析粒度，实时展示单独处理。</td></tr>
+   <tr><td><span class="tag p0">P0</span></td><td>24 小时 PV / 负载 / 电价预测</td><td>优先复用现有 智能模式；输出预测区间与更新时间，不展示虚假精确度。</td></tr>
+   <tr><td><span class="tag p0">P0</span></td><td>约束优化与一键确认</td><td>只生成设备能力范围内的充放电或定时计划；默认“执行前确认”。</td></tr>
+   <tr><td><span class="tag p0">P0</span></td><td>节省金额账本</td><td>区分预计、已执行、已验证；扣除购售电机会成本、效率损耗和电池损耗估值。</td></tr>
+   <tr><td><span class="tag p0">P0</span></td><td>停电状态与续航建议</td><td>读取已确认的设备状态；AI 只解释和建议，物理切换由设备固件完成。</td></tr>
+   <tr><td><span class="tag p1">P1</span></td><td>App 内语音与系统快捷指令</td><td>仅查询、接受建议、取消任务和应急状态；高风险操作转手机可视确认。</td></tr>
+   <tr><td><span class="tag p1">P1</span></td><td>兼容智能插座自动调度</td><td>能力注册、用户授权、幂等命令、执行回执均满足后灰度开放。</td></tr>
+   <tr><td><span class="tag p2">P2</span></td><td>智能家居设备 / 无线耳机 深度联动</td><td>以真实频率与跨团队成本验证为前置条件。</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <div class="grid-2">
+  <div class="mini-card">
+  <h4>MVP 明确包含</h4>
+  <ul>
+   <li>现有 能源 App 内嵌能源中心，而非新建独立 App。</li>
+   <li>首页能源流、今日成本和一条高价值建议。</li>
+   <li>预测、计划比较、用户确认、设备回执、结果核算。</li>
+   <li>停电事件状态卡、关键负载清单和续航方案。</li>
+   <li>内部审计日志、数据质量与模型监控。</li>
+  </ul>
+  </div>
+  <div class="mini-card">
+  <h4>MVP 明确不做</h4>
+  <ul>
+   <li>无线耳机 专属唤醒词、耳机固件深度接入。</li>
+   <li>全系列 储能系统、所有国家电价和任意第三方家电。</li>
+   <li>公开排行榜、固定比例积分和高补贴运营。</li>
+   <li>由 LLM 直接生成或发送电气安全控制指令。</li>
+   <li>宣称 智能家居设备 摄像头“自动切换备用电源”；是否有电取决于物理供电回路。</li>
+   <li>把 24 小时初次学习包装成稳定预测准确率。</li>
+  </ul>
+  </div>
+  </div>
+ </section>
+
+ <section id="architecture">
+  <div class="section-kicker"><span class="num">03</span>System Architecture</div>
+  <h2>系统方案与分层架构</h2>
+  <p class="lede">数据面、决策面和设备安全面分离；任何跨设备命令都经过能力注册、策略校验、用户授权和设备回执。</p>
+
+  <div class="architecture" role="img" aria-label="AI Energy Life Assistant 六层系统架构">
+  <div class="arch-row">
+  <div class="arch-label">体验层</div>
+  <div class="arch-items">
+   <div class="arch-item">App<br>能源中心</div>
+   <div class="arch-item">推送与快捷卡片</div>
+   <div class="arch-item">App 内语音<br><span class="tag p1">P1</span></div>
+   <div class="arch-item">运营 / 客服工作台</div>
+  </div>
+  </div>
+  <div class="arch-row">
+  <div class="arch-label">接入与身份层</div>
+  <div class="arch-items">
+   <div class="arch-item">API Gateway / BFF</div>
+   <div class="arch-item">用户账户</div>
+   <div class="arch-item">Consent &amp; Scope</div>
+   <div class="arch-item">限流 / 防重放 / 审计</div>
+  </div>
+  </div>
+  <div class="arch-row">
+  <div class="arch-label">业务编排层</div>
+  <div class="arch-items">
+   <div class="arch-item">建议服务</div>
+   <div class="arch-item">任务调度器</div>
+   <div class="arch-item">Command Gateway</div>
+   <div class="arch-item">通知与事件中心</div>
+  </div>
+  </div>
+  <div class="arch-row">
+  <div class="arch-label">智能决策层</div>
+  <div class="arch-items">
+   <div class="arch-item">PV / 负载预测</div>
+   <div class="arch-item">约束优化器</div>
+   <div class="arch-item">节省基线与账本</div>
+   <div class="arch-item">LLM 解释与对话<br>Policy Guard</div>
+  </div>
+  </div>
+  <div class="arch-row">
+  <div class="arch-label">数据平台层</div>
+  <div class="arch-items">
+   <div class="arch-item">Event Bus</div>
+   <div class="arch-item">时序数据存储</div>
+   <div class="arch-item">关系配置 / 审计库</div>
+   <div class="arch-item">Feature Store / Model Registry</div>
+  </div>
+  </div>
+  <div class="arch-row">
+  <div class="arch-label">设备与外部层</div>
+  <div class="arch-items">
+   <div class="arch-item">储能系统 EMS / BMS<br>智能电表 / 插座</div>
+   <div class="arch-item">内部设备云接口<br><span class="tag verify">待确认</span></div>
+   <div class="arch-item">天气 / 电价服务</div>
+   <div class="arch-item">本地 Modbus<br>限支持设备</div>
+  </div>
+  </div>
+  </div>
+
+  <div class="callout danger">
+  <strong>不可跨越的安全边界</strong>
+  <p>停电检测、并离网切换、逆变器保护、SOC 硬限制、过流/过温保护必须在认证设备及其固件控制回路内完成。云端 AI 可以读取结果、预测续航、提出负载方案，但不能替代保护逻辑，也不能在设备未回执时声称“已接管供电”。</p>
+  </div>
+
+  <h3>关键架构原则</h3>
+  <div class="grid-3">
+  <article class="mini-card"><h4>能力驱动</h4><p>每台设备注册可读指标、可写命令、功率范围、固件门槛和风险等级；界面不展示设备实际不支持的操作。</p></article>
+  <article class="mini-card"><h4>事件驱动</h4><p>状态变化通过事件总线传播，命令以异步回执闭环；不依赖 App 前台持续轮询完成关键流程。</p></article>
+  <article class="mini-card"><h4>可降级</h4><p>预测不可用时回退到既有 Self-Consumption / TOU 规则；云端不可用不影响设备本地安全保护。</p></article>
+  </div>
+ </section>
+
+ <section id="data-model">
+  <div class="section-kicker"><span class="num">04</span>Core Data Model</div>
+  <h2>核心数据模型</h2>
+  <p class="lede">统一模型先解决“谁、哪一户、哪台设备、什么时间、哪种能源方向、数据是否可信”，再讨论 AI。</p>
+
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>实体</th><th>核心字段</th><th>关键约束 / 用途</th></tr></thead>
+  <tbody>
+   <tr><td>User / Household</td><td>user_id, site_id, region, timezone, occupancy_profile</td><td>一户可多用户；家庭权限分 Owner / Admin / Member / Guest。</td></tr>
+   <tr><td>Device / Capability</td><td>device_id, model, firmware, capabilities, risk_level, online_state</td><td>所有读写都以能力注册表为准；型号和固件共同决定能力。</td></tr>
+   <tr><td>TelemetryPoint</td><td>site_id, device_id, metric, value, unit, event_time, ingest_time, quality</td><td>事件时间与入库时间分离；支持迟到、去重、补数和质量标记。</td></tr>
+   <tr><td>TariffInterval</td><td>plan_id, start_at, end_at, import_price, export_price, currency, source</td><td>购电、售电、税费分开；必须保留费率版本以便追溯。</td></tr>
+   <tr><td>WeatherForecast</td><td>geo_cell, valid_at, irradiance, cloud, temp, issued_at</td><td>保留“发布时间”，避免用事后天气反算并美化历史预测。</td></tr>
+   <tr><td>Prediction</td><td>model_version, horizon, p10, p50, p90, feature_snapshot</td><td>预测值必须绑定模型版本、特征快照及置信区间。</td></tr>
+   <tr><td>OptimizationPlan</td><td>plan_id, objective, constraints, actions, expected_cost, expires_at</td><td>过期计划不可执行；每个动作绑定设备能力与风险等级。</td></tr>
+   <tr><td>Command</td><td>command_id, idempotency_key, actor, scope, status, ack_at</td><td>禁止重复执行；记录请求、校验、下发、回执、失败原因。</td></tr>
+   <tr><td>SavingsLedger</td><td>baseline_cost, actual_cost, loss_cost, confidence, evidence_refs</td><td>预计与已验证分账；每笔金额可追溯到原始数据和动作。</td></tr>
+   <tr><td>ConsentGrant</td><td>subject, purpose, scopes, granted_at, expires_at, revoked_at</td><td>目的限定；撤回后停止新处理并按政策删除或匿名化。</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>统一时序事件示例</h3>
+  <pre><code>{
+ "event_id": "evt_01J...",
+ "event_type": "energy.telemetry.v1",
+ "site_id": "site_eu_001",
+ "device_id": "meter_ae1x0_001",
+ "metric": "grid.import_power",
+ "value": 842.4,
+ "unit": "W",
+ "event_time": "2026-08-25T14:00:03+02:00",
+ "ingest_time": "2026-08-25T12:00:06Z",
+ "quality": "MEASURED",
+ "sequence": 348901,
+ "schema_version": 1
+}</code></pre>
+
+  <h3>统一口径与不变量</h3>
+  <ul>
+  <li><strong>功率与电量分离：</strong>W / kW 表示时点功率，Wh / kWh 表示区间积分，不允许互相替代。</li>
+  <li><strong>方向统一：</strong>grid.import 为正购电、grid.export 为正售电；转换在适配层完成，核心层不接收型号私有正负号。</li>
+  <li><strong>时间统一：</strong>底层存 UTC，展示按家庭时区；费率计算显式处理夏令时重复或缺失时段。</li>
+  <li><strong>质量显式：</strong>MEASURED、ESTIMATED、IMPUTED、STALE、INVALID 五档；估算数据不可冒充实测。</li>
+  <li><strong>分析粒度：</strong>MVP 以 15 分钟区间做预测、成本和基线核算；秒级/数秒级数据仅用于实时态与设备控制。</li>
+  </ul>
+
+  <h3>省钱账本</h3>
+  <div class="formula">AI 净节省 = 反事实基线成本 − 实际成本 − 电池循环损耗 − AI 调度额外成本</div>
+  <p class="footnote">基线必须是“拥有相同硬件但没有本次 AI 干预”，不能把光伏/储能硬件本身的全部收益归因给 AI；同一度电不可同时重复计入移峰、光伏自用和储能套利。</p>
+ </section>
+
+ <section id="modules">
+  <div class="section-kicker"><span class="num">05</span>Four Modules</div>
+  <h2>四个核心模块技术方案</h2>
+  <p class="lede">周期为工程估算，不是官方承诺；假设有设备平台接口负责人、现有 App 代码可复用，且各工作流可并行。</p>
+
+  <h3>模块 A｜能源数据采集</h3>
+  <div class="table-wrap">
+  <table>
+  <tbody>
+   <tr><th>可行性</th><td><strong>中高</strong>（单一新款 储能系统 系统）；跨全系列与第三方设备为<strong>中</strong></td></tr>
+   <tr><th>周期</th><td>MVP 6–8 周；多型号、多地区规模化 4–6 个月</td></tr>
+   <tr><th>官方基础</th><td>现有 App / 智能模式 已处理光伏、家庭负载、电池与电网数据；智能电表支持本地 Modbus TCP；专业平台可展示并下载能源统计。</td></tr>
+   <tr><th>内部待确认</th><td>消费端内部读写接口、采样/聚合/保留期、事件推送、跨账号映射、历史补数、设备命令 SLA。</td></tr>
+  </tbody>
+  </table>
+  </div>
+  <h4>MVP 实现</h4>
+  <ol>
+  <li>选择一套型号与市场建立适配器；先接入 PV、load、grid import/export、battery charge/discharge、SOC、在线/故障状态。</li>
+  <li>通过 Schema Registry 统一单位、方向、时区和质量；采用 event_id＋sequence 去重。</li>
+  <li>实时流进入事件总线和短期时序库；15 分钟聚合进入分析仓库与 Feature Store。</li>
+  <li>数据质量服务监控新鲜度、缺失率、突变、能量守恒残差及设备时间漂移。</li>
+  </ol>
+  <div class="callout warning"><strong>主要风险：</strong>产品可在 App 中显示数据，并不证明存在可复用的统一 API；旧款设备、新款本地协议、地区兼容电表及固件能力需要逐一注册，不能用一个“储能系统 API”概括。</div>
+
+  <h3>模块 B｜AI 用电与光伏预测</h3>
+  <div class="table-wrap">
+  <table>
+  <tbody>
+   <tr><th>可行性</th><td><strong>中高</strong>（复用 智能模式）；从原始数据重建通用跨产品模型为<strong>中</strong></td></tr>
+   <tr><th>周期</th><td>复用服务 6–10 周；若模型不可复用，重建首版 12–16 周；规模化 6–9 个月</td></tr>
+   <tr><th>官方基础</th><td>智能模式 已公开使用历史发电/负载、天气和电价预测未来 24 小时并生成充放电计划。</td></tr>
+   <tr><th>内部待确认</th><td>预测服务是否可复用、输出粒度与置信区间、训练数据授权、模型覆盖市场、真实误差与线上 SLA。</td></tr>
+  </tbody>
+  </table>
+  </div>
+  <h4>模型路径</h4>
+  <ul>
+  <li><strong>PV：</strong>物理先验（容量、方向/倾角若有）＋辐照/云量＋历史校准，输出 P10/P50/P90。</li>
+  <li><strong>负载：</strong>星期/时段、气温、节假日、家庭状态和滞后负载特征；新用户先用分群全局模型。</li>
+  <li><strong>电价：</strong>固定 / TOU 读取费率表；动态电价保留发布时间与版本，不允许用事后价格替代预测。</li>
+  <li><strong>冷启动：</strong>官方“最多 24 小时完成首次学习”仅代表模式可启动；产品前 1–2 周仍标“初步预测”，稳定周期由试点验证。</li>
+  </ul>
+  <div class="callout warning"><strong>主要风险：</strong>官方未公开误差指标；家庭行为突变、天气偏差、智能电表断连和长期闲置都会降低准确性。不能用一个全局“准确率 90%”概括不同对象、时段和用户分群。</div>
+
+  <h3>模块 C｜语音交互</h3>
+  <div class="table-wrap">
+  <table>
+  <tbody>
+   <tr><th>可行性</th><td>App 内语音<strong>中</strong>；无线耳机 专属唤醒与深度固件<strong>中低</strong>，公开资料不足以证明存在可直接复用的 小能 语音 SDK</td></tr>
+   <tr><th>周期</th><td>App 内高频意图 P1：6–8 周；无线耳机 深度能力 P2：另需 3–6 个月及固件团队确认</td></tr>
+   <tr><th>MVP 决策</th><td><span class="tag decision">不进入 MVP</span> 先以推送＋一键操作验证能源需求；语音不承担留存和核心差异化。</td></tr>
+  </tbody>
+  </table>
+  </div>
+  <h4>P1 技术链路</h4>
+  <div class="flow-line">
+  <div class="flow-node">按住说话 / 系统快捷入口</div><span class="flow-arrow">→</span>
+  <div class="flow-node">ASR＋意图/槽位</div><span class="flow-arrow">→</span>
+  <div class="flow-node">Policy Guard</div><span class="flow-arrow">→</span>
+  <div class="flow-node">只读查询或候选计划</div><span class="flow-arrow">→</span>
+  <div class="flow-node">TTS＋手机确认卡</div>
+  </div>
+  <ul>
+  <li>L0 查询直接回答；L1 可逆定时复述后一次确认；L2 高影响操作必须手机端可视确认；L3 电气安全操作禁止由语音直接执行。</li>
+  <li>语音回复引用结构化数据和工具结果；没有新鲜遥测时必须说“数据更新于……”而不是推测。</li>
+  <li>默认不长期保存原始录音；只保留经脱敏的意图、成功状态与延迟指标，具体政策需隐私评审。</li>
+  </ul>
+
+  <h3>模块 D｜跨设备联动</h3>
+  <div class="table-wrap">
+  <table>
+  <tbody>
+   <tr><th>可行性</th><td><strong>中</strong>；低风险 储能系统 内部联动高于 储能系统→智能家居设备→无线耳机 全链路</td></tr>
+   <tr><th>周期</th><td>储能系统 内部低风险命令 8–12 周；跨产品线 4–8 个月，取决于固件、账号和团队接口</td></tr>
+   <tr><th>MVP 决策</th><td>只做设备状态读取、事件通知与受支持的 储能系统 计划；智能家居设备/无线耳机 深度联动后置。</td></tr>
+  </tbody>
+  </table>
+  </div>
+  <h4>实现要点</h4>
+  <ul>
+  <li>Capability Registry 定义每台设备可读、可写、功率/时间范围、风险级别、固件要求和是否支持回滚。</li>
+  <li>Command Gateway 负责授权、幂等键、过期时间、签名、防重放、速率限制与异步回执。</li>
+  <li>编排器只向已认证能力发命令；部分设备失败时逐项展示，不用“全部成功”掩盖失败。</li>
+  <li>停电时 储能系统 固件先检测并完成受支持的本地切换，云端随后接收状态事件；AI不在物理切换关键路径中。</li>
+  <li>智能家居设备 摄像头能否继续在线由它所在物理回路、网络设备和备用供电决定，不能通过软件凭空“切换备用电源”。</li>
+  </ul>
+ </section>
+
+ <section id="ai-boundary">
+  <div class="section-kicker"><span class="num">06</span>AI Responsibility</div>
+  <h2>AI 预测、约束优化与 LLM 的职责边界</h2>
+  <p class="lede">把“会说话的模型”和“可审计的控制决策”分开，是能源场景可靠性的核心。</p>
+
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>组件</th><th>负责</th><th>明确不负责</th><th>输出</th></tr></thead>
+  <tbody>
+   <tr><td>时间序列预测</td><td>未来 PV、家庭负载、电价及不确定性</td><td>不直接下设备命令，不绕过用户偏好</td><td>15 分钟 P10/P50/P90 序列</td></tr>
+   <tr><td>反事实基线</td><td>估算“没有本次 AI 干预”的成本</td><td>不把硬件天然收益全部归因给 AI</td><td>基线成本、可信度、证据引用</td></tr>
+   <tr><td>约束优化器</td><td>在设备、安全、舒适与费率约束内最小化净成本</td><td>不修改固件硬限制，不执行未经授权动作</td><td>候选计划、收益、影响与约束</td></tr>
+   <tr><td>Policy Guard</td><td>权限、风险级别、确认规则、禁用清单</td><td>不依赖 LLM 自我约束</td><td>ALLOW / CONFIRM / DENY</td></tr>
+   <tr><td>LLM</td><td>解释、追问、结构化工具调用、对话摘要</td><td>不自行计算最终账单、不直接控制逆变器/电气切换</td><td>自然语言＋受控工具请求</td></tr>
+   <tr><td>设备固件 / EMS / BMS</td><td>物理控制、并离网保护、SOC/温度/功率硬限制</td><td>不接受越权云端覆盖</td><td>执行回执、故障与真实状态</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>优化目标与约束</h3>
+  <div class="formula">min Σₜ [购电ₜ × 买价ₜ − 售电ₜ × 卖价ₜ] + 电池损耗成本 + 违约惩罚</div>
+  <div class="grid-2" style="margin-top:14px">
+  <div class="mini-card">
+  <h4>硬约束</h4>
+  <ul>
+   <li>SOC 上下限、充放电功率、逆变器能力。</li>
+   <li>同一时段不可非法同时充放电。</li>
+   <li>设备能力、固件禁令、并网规则。</li>
+   <li>关键负载和医疗设备永不由 AI 自动关闭。</li>
+  </ul>
+  </div>
+  <div class="mini-card">
+  <h4>用户约束</h4>
+  <ul>
+   <li>备电最低比例、任务完成时间。</li>
+   <li>可延迟设备清单与免打扰时段。</li>
+   <li>舒适度偏好、自动化等级。</li>
+   <li>本次可接受费用或风险上限。</li>
+  </ul>
+  </div>
+  </div>
+  <div class="callout danger"><strong>执行铁律：</strong>LLM 输出永远不能直接映射成设备协议报文。它只能调用受类型约束的业务工具；工具服务重新校验权限、参数、计划有效期和设备能力后，才允许进入 Command Gateway。</div>
+ </section>
+
+ <section id="interfaces">
+  <div class="section-kicker"><span class="num">07</span>Interfaces &amp; Events</div>
+  <h2>接口、事件与命令流</h2>
+  <p class="lede">以下是 AI Energy Life Assistant 内部概念接口，并非对外公布的 储能系统 公共 API；正式名称和字段需在内部接口审计后冻结。</p>
+
+  <div class="callout warning"><span class="tag assumption">方案假设</span> 所有接口通过 用户账号、家庭权限和目的性授权访问；设备控制接口由现有设备平台提供，而不是抓取 App 私有接口或依赖逆向工程。</div>
+
+  <h3>概念 API</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>方法与路径</th><th>用途</th><th>Scope</th><th>关键约束</th></tr></thead>
+  <tbody>
+   <tr><td><code>GET /v1/sites/{id}/energy-flow</code></td><td>当前能源流与新鲜度</td><td>energy.read</td><td>返回 measured_at 与 quality</td></tr>
+   <tr><td><code>GET /v1/sites/{id}/timeseries</code></td><td>按指标和粒度查询历史数据</td><td>energy.history</td><td>限制时间窗、聚合粒度与脱敏</td></tr>
+   <tr><td><code>GET /v1/sites/{id}/forecast</code></td><td>PV / 负载 / 电价预测</td><td>forecast.read</td><td>返回模型版本、区间与 issued_at</td></tr>
+   <tr><td><code>POST /v1/sites/{id}/plans:optimize</code></td><td>生成候选计划</td><td>plan.create</td><td>只生成，不执行；结果有 expires_at</td></tr>
+   <tr><td><code>POST /v1/plans/{id}:confirm</code></td><td>用户确认计划</td><td>plan.execute</td><td>重验权限、风险和设备在线状态</td></tr>
+   <tr><td><code>POST /v1/commands</code></td><td>Command Gateway 内部下发</td><td>device.control</td><td>幂等键、签名、TTL、允许列表</td></tr>
+   <tr><td><code>GET /v1/sites/{id}/savings</code></td><td>查询节省账本</td><td>savings.read</td><td>分 expected / executed / verified</td></tr>
+   <tr><td><code>POST /v1/consents</code></td><td>授权或撤回数据用途</td><td>consent.manage</td><td>撤回即时阻断新处理</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>核心事件</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>事件</th><th>发布者</th><th>主要消费者</th><th>语义</th></tr></thead>
+  <tbody>
+   <tr><td><code>energy.telemetry.v1</code></td><td>设备适配层</td><td>时序库、质量、特征服务</td><td>至少一次投递，消费者按 event_id 幂等</td></tr>
+   <tr><td><code>device.state.changed.v1</code></td><td>设备云 / 本地网关</td><td>编排、通知、状态投影</td><td>在线、离线、故障、模式变化</td></tr>
+   <tr><td><code>grid.outage.detected.v1</code></td><td>认证设备固件 / 平台</td><td>应急编排、推送</td><td>表示设备报告的电网状态，不表示 AI 作出检测</td></tr>
+   <tr><td><code>backup.supply.confirmed.v1</code></td><td>设备平台</td><td>应急页、续航服务</td><td>收到该事件后才显示“已接管供电”</td></tr>
+   <tr><td><code>forecast.ready.v1</code></td><td>预测服务</td><td>优化器、建议服务</td><td>含模型版本、窗口和质量</td></tr>
+   <tr><td><code>plan.proposed.v1</code></td><td>优化器</td><td>建议服务、App BFF</td><td>候选方案，不等于授权</td></tr>
+   <tr><td><code>command.acknowledged.v1</code></td><td>设备平台</td><td>编排、审计、UI</td><td>逐设备成功/失败/未知及真实状态</td></tr>
+   <tr><td><code>savings.verified.v1</code></td><td>节省引擎</td><td>首页、报告、实验平台</td><td>含反事实版本和证据引用</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>命令状态机</h3>
+  <div class="flow-line">
+  <div class="flow-node">PROPOSED</div><span class="flow-arrow">→</span>
+  <div class="flow-node">AUTHORIZED</div><span class="flow-arrow">→</span>
+  <div class="flow-node">VALIDATED</div><span class="flow-arrow">→</span>
+  <div class="flow-node">DISPATCHED</div><span class="flow-arrow">→</span>
+  <div class="flow-node">ACKED / FAILED / UNKNOWN</div>
+  </div>
+  <p class="footnote">超时只能标记 UNKNOWN，不能视为成功；系统随后读取真实状态对账。客户端重试必须复用同一 idempotency_key。</p>
+ </section>
+
+ <section id="sequences">
+  <div class="section-kicker"><span class="num">08</span>Key Sequences</div>
+  <h2>三个关键时序</h2>
+  <p class="lede">每个流程都必须到达“可核验结果”；应急流程先由设备保证安全，再由云端提供解释与优化。</p>
+
+  <h3>时序一｜首次接入与个人报告</h3>
+  <div class="sequence">
+  <div class="sequence-step"><span class="sequence-actor">用户 → App</span><span class="sequence-action">登录并选择家庭；授权读取能源、费率与位置/天气用途。<span class="sequence-note">非必要权限可跳过；用途和保留期逐项说明。</span></span></div>
+  <div class="sequence-step"><span class="sequence-actor">App → Identity</span><span class="sequence-action">校验家庭角色与设备归属，签发最小权限 token。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">BFF → Device Platform</span><span class="sequence-action">读取兼容设备、能力、固件和历史可用范围；不假定全系列统一 API。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">Data Quality</span><span class="sequence-action">统一单位/时区，评估完整度、新鲜度和异常；生成 Data Readiness。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">Forecast / Baseline</span><span class="sequence-action">有足够数据则运行预测；不足时使用分群先验并标“初步估算”。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">App → 用户</span><span class="sequence-action">展示年度节省区间、前三项机会、计算依据与可信度；邀请开启第一条“执行前确认”规则。</span></div>
+  </div>
+
+  <h3>时序二｜日常用电优化</h3>
+  <div class="sequence">
+  <div class="sequence-step"><span class="sequence-actor">数据 / 预测服务</span><span class="sequence-action">在滚动窗口更新 PV、负载与电价预测；数据过旧则停止生成自动建议。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">约束优化器</span><span class="sequence-action">生成“原计划 vs 新计划”，计算预计净节省、完成时间和约束影响。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">Policy Guard</span><span class="sequence-action">校验设备能力、用户权限、风险等级、建议阈值和免打扰策略。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">通知 → 用户</span><span class="sequence-action">推送“推迟洗碗机预计省 $0.35”；用户查看依据后确认或修改。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">Command Gateway</span><span class="sequence-action">重验计划未过期、设备在线与参数安全，带幂等键下发定时。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">设备平台 → App</span><span class="sequence-action">返回逐设备回执；失败或未知明确展示，并提供取消/重试。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">Savings Engine</span><span class="sequence-action">任务完成后对账实际电量和费率，写入已验证净节省；预测与实际分开显示。</span></div>
+  </div>
+
+  <h3>时序三｜停电应急</h3>
+  <div class="sequence">
+  <div class="sequence-step"><span class="sequence-actor">设备固件</span><span class="sequence-action"><strong>本地检测电网异常并按认证逻辑完成受支持的切换与保护。</strong><span class="sequence-note">AI 和云端不在物理安全关键路径。</span></span></div>
+  <div class="sequence-step"><span class="sequence-actor">设备平台</span><span class="sequence-action">上报 outage detected；只有收到 backup supply confirmed 后，App 才写“储能设备 已接管”。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">应急服务</span><span class="sequence-action">基于 SOC、实时负载、设备状态和数据新鲜度计算续航区间。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">推送 → 用户</span><span class="sequence-action">优先告知市电状态、是否确认备电、当前关键负载与预计续航。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">优化器</span><span class="sequence-action">给出安全优先 / 均衡 / 最长续航方案；医疗与关键设备保留。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">用户确认</span><span class="sequence-action">批量关闭属于高影响操作，需手机可视确认；只控制明确支持且物理在可控回路内的设备。</span></div>
+  <div class="sequence-step"><span class="sequence-actor">设备回执 / App</span><span class="sequence-action">逐项反馈执行结果并重新计算续航；断网时展示本地可得状态和最后云端更新时间。</span></div>
+  </div>
+ </section>
+
+ <section id="security">
+  <div class="section-kicker"><span class="num">09</span>Security &amp; Privacy</div>
+  <h2>权限、安全与隐私</h2>
+  <p class="lede">能源曲线可推断作息和是否在家，控制权限又可能影响真实设备，因此按高敏感家庭数据设计。</p>
+
+  <h3>权限模型</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>角色</th><th>读取</th><th>控制</th><th>授权管理</th></tr></thead>
+  <tbody>
+   <tr><td>Owner</td><td>家庭全部授权数据</td><td>可确认支持的 L1/L2 操作</td><td>可授予、撤销、导出与删除</td></tr>
+   <tr><td>Admin</td><td>按 Owner 授权</td><td>可确认非安全类操作</td><td>不可删除 Owner 或扩大自身 scope</td></tr>
+   <tr><td>Member</td><td>摘要与设备状态</td><td>仅低风险、可逆操作</td><td>不可新增第三方数据连接</td></tr>
+   <tr><td>Guest</td><td>受限状态</td><td>无远程控制</td><td>无</td></tr>
+   <tr><td>Support</td><td>用户主动授权的脱敏诊断</td><td>默认无控制</td><td>短时、可撤销、全审计</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>控制分级</h3>
+  <div class="grid-4">
+  <div class="mini-card"><h4>L0 查询</h4><p>用电、发电、费率；直接返回，但需显示数据时间。</p></div>
+  <div class="mini-card"><h4>L1 可逆</h4><p>普通定时、暂停建议；复述后一次确认。</p></div>
+  <div class="mini-card"><h4>L2 高影响</h4><p>储能底线、批量关闭、EV充电；手机可视确认。</p></div>
+  <div class="mini-card"><h4>L3 安全</h4><p>并离网、保护阈值、医疗负载；云端 AI 禁止直接执行。</p></div>
+  </div>
+
+  <h3>安全与隐私控制</h3>
+  <ul>
+  <li><strong>传输与存储：</strong>TLS 1.2+；敏感数据和 token 加密存储；密钥由 KMS 管理并定期轮换。</li>
+  <li><strong>认证授权：</strong>短期访问 token、设备绑定、细粒度 scope；高风险操作重认证与防重放。</li>
+  <li><strong>目的限定：</strong>“提供能源建议”与“训练通用模型”分开授权；默认不把家庭数据用于无关营销。</li>
+  <li><strong>最小化：</strong>LLM 上下文仅发送完成当前任务所需的聚合数据；设备序列号、精确地址和原始能源曲线脱敏或不发送。</li>
+  <li><strong>生命周期：</strong>定义原始遥测、聚合、语音文本、审计日志各自保留期；支持导出、撤回和删除。</li>
+  <li><strong>审计：</strong>记录谁在何时基于何种授权查看数据、确认计划、下发命令和修改自动化等级。</li>
+  <li><strong>合规：</strong>按上线地区完成 GDPR / UK GDPR / CCPA 等评审、数据驻留和跨境传输评估。</li>
+  </ul>
+
+  <div class="callout danger"><strong>威胁重点：</strong>账号接管、家庭成员越权、命令重放、伪造设备回执、恶意提示注入、第三方天气/电价污染、模型输出诱导高风险操作。安全测试需覆盖 API、移动端、设备云、事件总线与 LLM 工具调用全链路。</div>
+ </section>
+
+ <section id="reliability">
+  <div class="section-kicker"><span class="num">10</span>Reliability &amp; Degradation</div>
+  <h2>可靠性、离线与降级策略</h2>
+  <p class="lede">“关键时刻可靠”不是让所有能力离线运行，而是明确哪些必须本地完成、哪些可以安全停止。</p>
+
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>故障</th><th>系统行为</th><th>用户表达</th><th>禁止行为</th></tr></thead>
+  <tbody>
+   <tr><td>智能电表断连</td><td>停止自动优化；回退既有安全模式；最后数据标 STALE</td><td>“电表数据更新于 18 分钟前，自动优化已暂停”</td><td>继续累计“已验证节省”</td></tr>
+   <tr><td>天气服务不可用</td><td>使用最近预报＋历史基线，扩大区间；低置信建议不推送</td><td>“天气数据不足，预测区间已扩大”</td><td>展示单点精确发电量</td></tr>
+   <tr><td>动态电价不可用</td><td>使用已发布费率或停止价格套利</td><td>“暂按最近有效费率估算”</td><td>基于过期价格自动充放电</td></tr>
+   <tr><td>预测 / 优化服务不可用</td><td>回退 Self-Consumption / TOU 规则</td><td>“智能建议暂不可用，设备继续按原计划运行”</td><td>影响 BMS / EMS 本地保护</td></tr>
+   <tr><td>云端或家庭互联网中断</td><td>设备固件维持保护与既有计划；本地能力按支持型号运行</td><td>App 显示最后同步时间</td><td>声称远程命令已成功</td></tr>
+   <tr><td>命令超时</td><td>标 UNKNOWN，读取真实状态对账；不盲目重发非幂等命令</td><td>“尚未确认执行，请检查设备状态”</td><td>把超时当成功</td></tr>
+   <tr><td>智能家居设备 / 无线耳机 不可用</td><td>能源核心闭环继续；隐藏相关增强入口</td><td>“该入口暂不可用，可在 App 中继续”</td><td>阻塞 储能系统 计划</td></tr>
+   <tr><td>LLM 不可用</td><td>使用模板解释结构化结果</td><td>仍可查看数据、确认或取消计划</td><td>让能源决策依赖对话服务在线</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>建议 SLO（MVP 目标）</h3>
+  <ul>
+  <li>能源读取 API 月可用性 ≥ 99.5%；建议和报告可低于设备保护链路，二者不得共用单点。</li>
+  <li>云端收到设备事件后，应急状态推送 p95 ≤ 30 秒；该指标不包含本地物理检测和切换时间。</li>
+  <li>普通命令确认链路 p95 ≤ 5 秒；超时进入 UNKNOWN 并对账。</li>
+  <li>15 分钟数据桶完整率 ≥ 98%；质量不足时自动禁用节省验证与自动优化。</li>
+  <li>RPO：配置与账本 ≤ 5 分钟；RTO：核心读取 ≤ 60 分钟。最终值由平台等级和成本评审确定。</li>
+  </ul>
+ </section>
+
+ <section id="testing">
+  <div class="section-kicker"><span class="num">11</span>Verification</div>
+  <h2>测试策略与验收指标</h2>
+  <p class="lede">“模型好像准确”和“页面能点通”都不构成上线证据；必须同时验证数据、经济性、安全、可靠性和真实用户行为。</p>
+
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>层级</th><th>测试内容</th><th>建议验收门槛</th></tr></thead>
+  <tbody>
+   <tr><td>数据契约</td><td>单位、正负号、时区、乱序、迟到、重复、设备升级兼容</td><td>标准样例 100% 通过；关键指标错向/错单位为 0</td></tr>
+   <tr><td>数据质量</td><td>15 分钟桶完整度、延迟、守恒残差、异常值</td><td>试点户完整率 ≥98%；异常会被标记且不会进入已验证账本</td></tr>
+   <tr><td>预测</td><td>按型号、地区、季节、新老用户评估负载 WAPE 与 PV nMAE</td><td>相对季节性朴素基线误差至少下降 15%；P10–P90 覆盖率接近目标区间</td></tr>
+   <tr><td>优化</td><td>与规则基线、事后最优对比；检查成本、舒适和设备约束</td><td>线上平均净成本不劣于原策略；硬约束违规为 0</td></tr>
+   <tr><td>节省核算</td><td>购售电、效率、电池损耗、重复归因、费率变更</td><td>与独立账单计算偏差 ≤1%；重复计账为 0</td></tr>
+   <tr><td>命令</td><td>幂等、超时、部分失败、撤销、过期计划、权限变化</td><td>重复物理执行为 0；所有失败可定位并呈现</td></tr>
+   <tr><td>安全</td><td>越权、重放、token 泄漏、事件伪造、提示注入、工具越界</td><td>高危漏洞为 0；L3 操作被云端/语音直接执行为 0</td></tr>
+   <tr><td>应急</td><td>断网、断云、停电模拟、旧数据、错误回执</td><td>本地保护不受云服务影响；未确认备电时不展示成功</td></tr>
+   <tr><td>语音（P1）</td><td>查询、接受、取消、歧义、噪声、敏感操作</td><td>核心意图任务完成率 ≥90%；高风险误执行为 0</td></tr>
+   <tr><td>用户试点</td><td>授权、建议采纳、主动复访、可信度、投诉</td><td>以原型验证门槛为准；技术通过不等于商业通过</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>模型评估规范</h3>
+  <ul>
+  <li>PV 只在有效日照时段评估，夜间大量 0 不得稀释误差。</li>
+  <li>禁止随机打散时间序列；使用滚动时间窗回测，防止未来信息泄漏。</li>
+  <li>天气预测必须使用当时可获得的 forecast vintage，而非事后实况。</li>
+  <li>上线前影子运行 2–4 周，只比较建议与既有模式，不下发自动命令。</li>
+  <li>除平均指标外报告 P90 误差、最差地区/型号、冷启动与断连人群。</li>
+  </ul>
+ </section>
+
+ <section id="deployment">
+  <div class="section-kicker"><span class="num">12</span>Deployment &amp; Observability</div>
+  <h2>部署、监控与回滚</h2>
+  <p class="lede">按市场、型号、固件和用户白名单逐层放量；模型、规则和设备命令必须可以独立回滚。</p>
+
+  <h3>发布路径</h3>
+  <div class="flow-line">
+  <div class="flow-node">开发 / 仿真</div><span class="flow-arrow">→</span>
+  <div class="flow-node">Staging＋硬件在环</div><span class="flow-arrow">→</span>
+  <div class="flow-node">Shadow 影子模式</div><span class="flow-arrow">→</span>
+  <div class="flow-node">员工 / 50 户白名单</div><span class="flow-arrow">→</span>
+  <div class="flow-node">5% → 25% → 100%</div>
+  </div>
+  <ul>
+  <li>Feature Flag 维度：国家、费率类型、设备型号、固件版本、自动化等级和实验组。</li>
+  <li>模型由 Registry 管理训练数据快照、指标、审批人与版本；支持 Champion / Challenger 和一键回退。</li>
+  <li>命令策略与模型解耦；发现异常时可关闭“新建议/自动执行”，保留只读数据和既有设备安全逻辑。</li>
+  <li>Schema 采用向后兼容版本；设备固件 OTA 前运行契约回归测试。</li>
+  </ul>
+
+  <h3>监控面板</h3>
+  <div class="grid-3">
+  <article class="mini-card"><h4>数据健康</h4><p>事件延迟、缺失、重复、异常、守恒残差、各型号在线率、费率/天气新鲜度。</p></article>
+  <article class="mini-card"><h4>模型与经济性</h4><p>预测误差、区间覆盖、漂移、计划采纳、预计/实际偏差、净节省、成本后悔值。</p></article>
+  <article class="mini-card"><h4>命令与安全</h4><p>成功/失败/未知、p95 延迟、重复拦截、越权拒绝、高风险确认、固件错误码。</p></article>
+  </div>
+  <div class="callout warning"><strong>自动停用条件：</strong>数据连续缺失、预测严重漂移、费率过期、命令失败率超阈值、节省净值为负或出现任何硬约束违规时，对相应型号/市场关闭新自动化并回退规则模式。</div>
+ </section>
+
+ <section id="schedule">
+  <div class="section-kicker"><span class="num">13</span>Plan &amp; Dependencies</div>
+  <h2>开发排期、人员与关键依赖</h2>
+  <p class="lede">总周期取决于 Gate 0：若内部接口不可复用或预测服务封闭，排期应重估，而不是用加班掩盖架构前提失效。</p>
+
+  <h3>建议 14–16 周受控生产 MVP</h3>
+  <div class="callout"><strong>口径说明：</strong>产品验证可先用 8–12 周的只读数据、建议、人工确认和有限执行 Beta；以下 14–16 周排期进一步包含受支持低风险命令、质量监控、硬件在环、安全审计和 50–100 户受控发布，两者不是同一交付成熟度。</div>
+  <div class="phase"><strong>第 0–2 周｜技术尽调与范围冻结</strong><br>盘点接口、事件、数据保留、设备/固件矩阵、智能模式 复用方式、目标市场电价；完成隐私与安全威胁建模。<br><span class="tag verify">Gate 0</span> 若核心数据无受支持接口，暂停开发。</div>
+  <div class="phase"><strong>第 2–6 周｜数据底座与体验骨架</strong><br>统一 Schema、单型号适配、时序入库、质量监控、账号授权、首页实时能源流和历史曲线。</div>
+  <div class="phase"><strong>第 4–10 周｜预测、基线与节省账本</strong><br>复用或建立 24 小时预测服务；完成费率、天气、反事实基线、置信区间和账本；进入影子运行。</div>
+  <div class="phase"><strong>第 7–12 周｜约束优化与低风险命令</strong><br>候选计划、Policy Guard、用户确认、Command Gateway、幂等回执、取消和回退。</div>
+  <div class="phase"><strong>第 10–14 周｜应急状态与端到端加固</strong><br>设备状态事件、续航区间、故障/离线降级、隐私安全测试、硬件在环和客服预案。</div>
+  <div class="phase"><strong>第 14–16 周｜50–100 户受控 Beta</strong><br>分群测量数据质量、预测增益、建议采纳、真实净节省、投诉和命令稳定性；召开 Gate 2。</div>
+
+  <h3>核心团队</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>角色</th><th>建议投入</th><th>主要职责</th></tr></thead>
+  <tbody>
+   <tr><td>产品经理 / 项目负责人</td><td>1</td><td>范围、指标、跨团队决策、用户试点与 Go/No-Go</td></tr>
+   <tr><td>技术负责人 / 架构师</td><td>1</td><td>架构、接口契约、安全边界、技术评审</td></tr>
+   <tr><td>移动端</td><td>2</td><td>现有 App 能源中心、授权、状态与确认交互</td></tr>
+   <tr><td>后端</td><td>2</td><td>BFF、建议、计划、Command Gateway、节省账本</td></tr>
+   <tr><td>数据工程</td><td>1</td><td>事件、时序、质量、特征与数据血缘</td></tr>
+   <tr><td>ML / 优化</td><td>2</td><td>预测、基线、约束优化、离线与线上评估</td></tr>
+   <tr><td>QA / 自动化</td><td>2</td><td>端到端、异常、硬件在环、兼容和回归</td></tr>
+   <tr><td>SRE / 安全 / 隐私</td><td>各 0.3–0.5</td><td>可观测性、容量、威胁模型、合规和事件响应</td></tr>
+   <tr><td>储能系统 设备/固件负责人</td><td>至少 1 名接口人</td><td>能力矩阵、设备协议、错误码、固件验证与本地安全</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>关键依赖与关键路径</h3>
+  <ol>
+  <li><span class="tag verify">内部待确认</span> 现有设备云是否提供受支持的数据与命令接口，而非只能由当前 App 私有调用。</li>
+  <li><span class="tag verify">内部待确认</span> 智能模式 是可复用平台服务、设备端封闭策略，还是仅能消费最终模式状态。</li>
+  <li>目标市场天气、电价、售电与税费数据的许可、质量、成本和 SLA。</li>
+  <li>一组明确的型号＋固件＋电表组合，以及足够的真实试点家庭。</li>
+  <li>账号、家庭权限、隐私同意、数据驻留与模型训练授权。</li>
+  </ol>
+  <div class="callout warning"><strong>排期加法：</strong>若没有可复用预测服务，增加约 6–10 周；若必须新建独立 App 和账号迁移，增加约 8–12 周；若 MVP 同时加入 智能家居设备 / 无线耳机 固件联动，风险不可简单线性估算，应另立项目。</div>
+ </section>
+
+ <section id="limitations">
+  <div class="section-kicker"><span class="num">14</span>Limits &amp; Roadmap</div>
+  <h2>已知限制与未来规划</h2>
+  <p class="lede">公开资料可以证明方向可行，却不足以证明跨全系列、跨团队和跨市场可规模化。</p>
+
+  <h3>已知限制</h3>
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>限制</th><th>当前影响</th><th>处理方式</th></tr></thead>
+  <tbody>
+   <tr><td>不存在已核验的全系列统一公共 API</td><td>接口和排期依赖内部设备平台</td><td>Gate 0 做接口审计；不得逆向私有 API</td></tr>
+   <tr><td>设备/电表兼容按代际和地区碎片化</td><td>MVP 覆盖面有限</td><td>能力注册＋白名单，逐组合认证</td></tr>
+   <tr><td>官方未公开 智能模式 预测误差</td><td>不能承诺固定准确率和节省比例</td><td>影子回测、区间预测、按分群披露</td></tr>
+   <tr><td>非 储能系统 用户缺少实时数据与执行端</td><td>只能做账单估算或部分监测</td><td>明确标“预计”，不计已验证节省</td></tr>
+   <tr><td>节省反事实不可直接观测</td><td>存在归因与重复计账风险</td><td>版本化基线、证据链和保守/中位/潜力模型</td></tr>
+   <tr><td>云端不适合作为电气安全控制回路</td><td>应急自动化范围受限</td><td>设备固件优先，本报告只做状态和建议编排</td></tr>
+   <tr><td>耳机语音真实频率可能很低</td><td>无线耳机 深度开发 ROI 不明</td><td>先验证 App 内语音，不进入 MVP</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <h3>未来规划</h3>
+  <div class="grid-3">
+  <article class="mini-card">
+  <h4>P1｜验证后扩展</h4>
+  <ul>
+   <li>增加第二个市场与设备组合。</li>
+   <li>智能电表本地数据 / 自动化。</li>
+   <li>App 内语音和系统快捷指令。</li>
+   <li>兼容智能插座的余电调度。</li>
+  </ul>
+  </article>
+  <article class="mini-card">
+  <h4>P2｜生态能力</h4>
+  <ul>
+   <li>智能家居设备 家庭状态作为授权特征。</li>
+   <li>无线耳机 通知快捷确认。</li>
+   <li>EV、热泵等大负载开放集成。</li>
+   <li>需求响应与电力公司奖励。</li>
+  </ul>
+  </article>
+  <article class="mini-card">
+  <h4>长期｜平台化</h4>
+  <ul>
+   <li>统一开放接口与开发者生态。</li>
+   <li>多家庭与聚合能源服务。</li>
+   <li>端侧预测和断网自治增强。</li>
+   <li>经因果实验验证的商业化。</li>
+  </ul>
+  </article>
+  </div>
+ </section>
+
+ <section id="go-no-go">
+  <div class="section-kicker"><span class="num">15</span>Decision Gates</div>
+  <h2>Go / No-Go 决策门槛</h2>
+  <p class="lede">每一道门都可以停止项目；“已投入成本”不能成为继续扩大投入的理由。</p>
+
+  <div class="table-wrap">
+  <table>
+  <thead><tr><th>Gate</th><th>Go 条件</th><th>No-Go / 收缩条件</th></tr></thead>
+  <tbody>
+   <tr><td><strong>Gate 0｜接口可行</strong><br>第2周</td><td>目标组合有受支持读接口；字段、历史和授权明确；至少有一个安全的低风险命令路径。</td><td>只能逆向 App 私有接口；数据语义不可追溯；设备团队不承诺接口维护。</td></tr>
+   <tr><td><strong>Gate 1｜技术 Alpha</strong><br>第10–12周</td><td>数据完整率达标；预测优于朴素基线；硬约束违规为0；账本可对账；命令幂等。</td><td>预测无增益、净节省为负、设备回执不可靠或存在安全越界。</td></tr>
+   <tr><td><strong>Gate 2｜用户 Beta</strong><br>第16周</td><td>用户愿意授权；建议被真实执行；看到结果后主动复访；投诉和打扰可控。</td><td>用户只看报告不行动、拒绝数据授权、节省不足以形成价值或信任崩溃。</td></tr>
+   <tr><td><strong>Gate 3｜商业扩张</strong></td><td>实验组相对对照组的增量贡献毛利、服务收入或成本下降可覆盖完整 TCO，回收期符合公司标准。</td><td>只有相关性没有因果增量；完整成本高于可验证收益；目标市场规模不足。</td></tr>
+  </tbody>
+  </table>
+  </div>
+
+  <div class="decision-banner">
+  <div class="decision-icon">→</div>
+  <div>
+  <strong>本报告最终判断</strong>
+  <p><span class="tag decision">有条件 Go</span> 在 Gate 0 通过后，先完成 8–12 周验证 Beta；证据通过后再加固为 14–16 周成熟度的单市场、单设备组合、现有 App 内嵌 储能系统 能源 MVP。<span class="tag p0">No-Go</span> 直接投入完整独立 App、全产品线统一控制、无线耳机 深度语音或由 AI 承担电气安全切换。</p>
+  </div>
+  </div>
+ </section>
+
+ <section id="sources">
+  <div class="section-kicker"><span class="num">A</span>Appendix</div>
+  <h2>官方资料、内部待确认清单与术语</h2>
+  <p class="lede">本报告的技术与竞品判断基于公开官方资料核验；涉及内部接口、固件能力与排期的结论均标注为「内部待确认」，需在立项前完成接口尽调后更新。</p>
+
+  <h3>事实核验口径</h3>
+  <p>本报告的竞品与行业判断基于公开可访问的官方资料核验（如 Google Nest、Apple Home、Emporia、Sense 等竞品官方帮助中心）。内部接口、固件能力与排期相关结论需在立项前完成内部尽调后更新。</p>
+
+  <details open>
+  <summary>内部必须确认的 12 项</summary>
+  <div>
+  <ol>
+   <li>消费端能源数据读接口的正式 owner、文档、鉴权、限流和版本策略。</li>
+   <li>控制接口的命令语义、风险级别、幂等、回执、超时和 SLA。</li>
+   <li>原始/聚合数据的采样、保留、补数、导出和删除能力。</li>
+   <li>家庭、站点、用户和设备 ID 在 储能系统、智能家居设备、无线耳机 间的映射。</li>
+   <li>智能模式 模型服务是否可跨 App 复用，还是绑定设备端固件。</li>
+   <li>预测输出的粒度、置信区间、版本、训练授权和真实分群误差。</li>
+   <li>各型号/固件的能力注册、OTA 向后兼容和停止支持策略。</li>
+   <li>停电、备电确认、故障和恢复事件的来源、顺序与可靠性。</li>
+   <li>旗舰储能系统 Open API / Modbus 的正式开发文档、地区、读写范围和安全模型。</li>
+   <li>电价与天气供应商许可是否允许模型训练、账单计算和用户展示。</li>
+   <li>数据驻留、跨境、模型训练、语音文本与审计日志保留政策。</li>
+   <li>完整 TCO：研发、云/AI、数据、固件、合规、客服与长期维护。</li>
+  </ol>
+  </div>
+  </details>
+
+  <h3>术语</h3>
+  <div class="table-wrap">
+  <table>
+  <tbody>
+   <tr><th>EMS / BMS</th><td>能源管理系统 / 电池管理系统；设备安全和物理控制的核心。</td></tr>
+   <tr><th>SOC</th><td>电池荷电状态（State of Charge）。</td></tr>
+   <tr><th>TOU</th><td>分时电价（Time of Use）。</td></tr>
+   <tr><th>WAPE / nMAE</th><td>加权绝对百分比误差 / 归一化平均绝对误差。</td></tr>
+   <tr><th>Command Gateway</th><td>统一校验、签名、下发、回执和审计设备命令的内部网关。</td></tr>
+   <tr><th>反事实基线</th><td>在硬件和外部条件相同、但没有本次 AI 干预时的估算成本。</td></tr>
+  </tbody>
+  </table>
+  </div>
+  <p class="footnote">声明：开发周期、SLO 和验收门槛为本方案的工程估算与建议目标，不是官方已发布指标；需在内部接口尽调、团队容量和真实数据回测后更新。</p>
+ </section>
+ </main>
+ </div>
+
+ <footer class="page-footer">AI Energy Life Assistant · 系统实现与技术可行性报告 · V1.0 · 2026-08-25</footer>
+</body>
+</html>

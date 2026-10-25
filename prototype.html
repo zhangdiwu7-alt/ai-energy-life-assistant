@@ -1,0 +1,3090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta name="description" content="AI Energy Life Assistant 能源生活助手可交互产品原型" />
+ <title>AI Energy Life Assistant｜交互原型</title>
+ <style>
+ :root {
+ --navy: #0b1f36;
+ --navy-2: #173752;
+ --green: #16ad78;
+ --green-dark: #087653;
+ --green-soft: #e8f9f2;
+ --blue: #3978df;
+ --blue-soft: #edf4ff;
+ --orange: #f29a38;
+ --orange-soft: #fff4e6;
+ --red: #e15353;
+ --red-soft: #fff0f0;
+ --ink: #172235;
+ --muted: #6d7888;
+ --line: #e3e8ef;
+ --surface: #ffffff;
+ --background: #edf2f6;
+ --shadow: 0 26px 80px rgba(5, 24, 45, 0.22);
+ }
+
+ * {
+ box-sizing: border-box;
+ }
+
+ html,
+ body {
+ min-height: 100%;
+ }
+
+ body {
+ margin: 0;
+ color: var(--ink);
+ background:
+  radial-gradient(circle at 12% 10%, rgba(22, 173, 120, 0.18), transparent 27%),
+  radial-gradient(circle at 90% 82%, rgba(57, 120, 223, 0.16), transparent 30%),
+  linear-gradient(135deg, #eef4f5, #e9eef4);
+ font-family:
+  Inter, "PingFang SC", "Microsoft YaHei", -apple-system,
+  BlinkMacSystemFont, "Segoe UI", sans-serif;
+ line-height: 1.55;
+ }
+
+ button,
+ input,
+ select {
+ font: inherit;
+ }
+
+ button {
+ -webkit-tap-highlight-color: transparent;
+ }
+
+ .prototype-shell {
+ display: grid;
+ grid-template-columns: minmax(260px, 340px) minmax(360px, 430px) minmax(260px, 340px);
+ gap: 28px;
+ align-items: center;
+ justify-content: center;
+ min-height: 100vh;
+ padding: 28px;
+ }
+
+ .side-panel {
+ align-self: stretch;
+ max-height: calc(100vh - 56px);
+ overflow: auto;
+ padding: 24px;
+ border: 1px solid rgba(255, 255, 255, 0.75);
+ border-radius: 24px;
+ background: rgba(255, 255, 255, 0.76);
+ box-shadow: 0 18px 55px rgba(11, 31, 54, 0.1);
+ backdrop-filter: blur(18px);
+ }
+
+ .brand-mark {
+ display: inline-flex;
+ gap: 9px;
+ align-items: center;
+ color: var(--navy);
+ font-weight: 900;
+ letter-spacing: -0.02em;
+ }
+
+ .brand-dot {
+ width: 22px;
+ height: 22px;
+ border-radius: 7px 12px 7px 12px;
+ background: linear-gradient(135deg, var(--green), #5ee7b5);
+ box-shadow: 0 4px 12px rgba(22, 173, 120, 0.35);
+ transform: rotate(-7deg);
+ }
+
+ .side-panel h1 {
+ margin: 24px 0 10px;
+ color: var(--navy);
+ font-size: 32px;
+ line-height: 1.1;
+ letter-spacing: -0.04em;
+ }
+
+ .side-panel h2 {
+ margin: 0 0 12px;
+ color: var(--navy);
+ font-size: 20px;
+ }
+
+ .side-panel p {
+ color: var(--muted);
+ font-size: 14px;
+ }
+
+ .demo-list {
+ display: grid;
+ gap: 9px;
+ margin: 22px 0;
+ padding: 0;
+ list-style: none;
+ }
+
+ .demo-list li {
+ display: grid;
+ grid-template-columns: 27px 1fr;
+ gap: 10px;
+ align-items: start;
+ padding: 11px;
+ border-radius: 12px;
+ background: rgba(237, 244, 255, 0.8);
+ color: #425168;
+ font-size: 13px;
+ }
+
+ .demo-list span {
+ display: grid;
+ width: 24px;
+ height: 24px;
+ place-items: center;
+ border-radius: 50%;
+ color: #fff;
+ background: var(--blue);
+ font-size: 11px;
+ font-weight: 900;
+ }
+
+ .side-actions {
+ display: grid;
+ gap: 10px;
+ margin-top: 22px;
+ }
+
+ .side-button {
+ width: 100%;
+ padding: 11px 14px;
+ border: 1px solid var(--line);
+ border-radius: 12px;
+ color: var(--navy);
+ background: #fff;
+ cursor: pointer;
+ font-size: 13px;
+ font-weight: 800;
+ text-align: left;
+ }
+
+ .side-button:hover {
+ border-color: var(--green);
+ background: var(--green-soft);
+ }
+
+ .side-button.danger:hover {
+ border-color: var(--red);
+ background: var(--red-soft);
+ }
+
+ .phone {
+ position: relative;
+ width: 100%;
+ height: min(860px, calc(100vh - 40px));
+ min-height: 690px;
+ overflow: hidden;
+ border: 9px solid #0a1726;
+ border-radius: 45px;
+ background: #f5f7fa;
+ box-shadow: var(--shadow);
+ }
+
+ .phone::before {
+ position: absolute;
+ z-index: 60;
+ top: 8px;
+ left: 50%;
+ width: 108px;
+ height: 25px;
+ border-radius: 15px;
+ background: #07111d;
+ content: "";
+ transform: translateX(-50%);
+ }
+
+ .status-bar {
+ position: absolute;
+ z-index: 55;
+ top: 0;
+ left: 0;
+ display: flex;
+ width: 100%;
+ height: 43px;
+ align-items: center;
+ justify-content: space-between;
+ padding: 6px 22px 0;
+ color: var(--navy);
+ background: rgba(245, 247, 250, 0.92);
+ font-size: 11px;
+ font-weight: 850;
+ backdrop-filter: blur(14px);
+ }
+
+ .status-bar.dark {
+ color: #fff;
+ background: transparent;
+ }
+
+ .screen {
+ position: absolute;
+ inset: 0;
+ display: none;
+ overflow-y: auto;
+ padding: 52px 18px 100px;
+ background: #f5f7fa;
+ scrollbar-width: none;
+ }
+
+ .screen::-webkit-scrollbar {
+ display: none;
+ }
+
+ .screen.active {
+ display: block;
+ animation: screen-in 0.28s ease both;
+ }
+
+ @keyframes screen-in {
+ from {
+  opacity: 0;
+  transform: translateY(9px);
+ }
+ to {
+  opacity: 1;
+  transform: none;
+ }
+ }
+
+ .screen.no-nav {
+ padding-bottom: 25px;
+ }
+
+ .top-row {
+ display: flex;
+ gap: 10px;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 15px;
+ }
+
+ .top-row h2,
+ .top-row h3 {
+ margin: 0;
+ color: var(--navy);
+ letter-spacing: -0.02em;
+ }
+
+ .top-row h2 {
+ font-size: 24px;
+ }
+
+ .top-row h3 {
+ font-size: 18px;
+ }
+
+ .icon-button {
+ display: grid;
+ width: 38px;
+ height: 38px;
+ place-items: center;
+ border: 1px solid var(--line);
+ border-radius: 12px;
+ color: var(--navy);
+ background: #fff;
+ cursor: pointer;
+ font-weight: 900;
+ }
+
+ .eyebrow {
+ margin: 0 0 4px;
+ color: var(--green-dark);
+ font-size: 11px;
+ font-weight: 900;
+ letter-spacing: 0.09em;
+ text-transform: uppercase;
+ }
+
+ .muted {
+ color: var(--muted);
+ }
+
+ .tiny {
+ font-size: 11px;
+ }
+
+ .small {
+ font-size: 12px;
+ }
+
+ .surface {
+ margin-bottom: 12px;
+ padding: 15px;
+ border: 1px solid var(--line);
+ border-radius: 18px;
+ background: #fff;
+ box-shadow: 0 8px 24px rgba(11, 31, 54, 0.045);
+ }
+
+ .surface h3,
+ .surface h4,
+ .surface p {
+ margin-top: 0;
+ }
+
+ .surface h3 {
+ margin-bottom: 7px;
+ color: var(--navy);
+ font-size: 17px;
+ }
+
+ .surface h4 {
+ margin-bottom: 5px;
+ color: var(--navy);
+ font-size: 14px;
+ }
+
+ .hero-card {
+ position: relative;
+ overflow: hidden;
+ padding: 19px;
+ color: #fff;
+ background:
+  radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.18), transparent 25%),
+  linear-gradient(140deg, #087c58, #17aa78 62%, #2bbf8a);
+ }
+
+ .hero-card::after {
+ position: absolute;
+ right: -24px;
+ bottom: -36px;
+ width: 130px;
+ height: 130px;
+ border: 21px solid rgba(255, 255, 255, 0.07);
+ border-radius: 50%;
+ content: "";
+ }
+
+ .hero-card h3,
+ .hero-card p {
+ position: relative;
+ z-index: 2;
+ color: #fff;
+ }
+
+ .hero-amount {
+ position: relative;
+ z-index: 2;
+ margin: 5px 0;
+ font-size: 35px;
+ font-weight: 950;
+ letter-spacing: -0.04em;
+ }
+
+ .hero-actions {
+ position: relative;
+ z-index: 2;
+ display: flex;
+ gap: 8px;
+ margin-top: 15px;
+ }
+
+ .button {
+ display: inline-flex;
+ min-height: 40px;
+ align-items: center;
+ justify-content: center;
+ gap: 7px;
+ padding: 9px 14px;
+ border: 0;
+ border-radius: 12px;
+ color: #fff;
+ background: var(--green);
+ cursor: pointer;
+ font-size: 13px;
+ font-weight: 850;
+ transition: 0.18s ease;
+ }
+
+ .button:hover {
+ filter: brightness(0.96);
+ transform: translateY(-1px);
+ }
+
+ .button:active {
+ transform: translateY(1px);
+ }
+
+ .button.primary-light {
+ color: var(--green-dark);
+ background: #fff;
+ }
+
+ .button.ghost-light {
+ border: 1px solid rgba(255, 255, 255, 0.45);
+ color: #fff;
+ background: rgba(255, 255, 255, 0.08);
+ }
+
+ .button.secondary {
+ border: 1px solid var(--line);
+ color: var(--navy);
+ background: #fff;
+ }
+
+ .button.warning {
+ background: var(--orange);
+ }
+
+ .button.danger {
+ background: var(--red);
+ }
+
+ .button.full {
+ width: 100%;
+ }
+
+ .button:disabled {
+ cursor: not-allowed;
+ filter: grayscale(0.4);
+ opacity: 0.45;
+ transform: none;
+ }
+
+ .pill {
+ display: inline-flex;
+ align-items: center;
+ gap: 5px;
+ padding: 4px 8px;
+ border-radius: 999px;
+ color: var(--green-dark);
+ background: var(--green-soft);
+ font-size: 10px;
+ font-weight: 850;
+ }
+
+ .pill.blue {
+ color: #285da6;
+ background: var(--blue-soft);
+ }
+
+ .pill.orange {
+ color: #9d5c16;
+ background: var(--orange-soft);
+ }
+
+ .pill.red {
+ color: #a53333;
+ background: var(--red-soft);
+ }
+
+ .section-title {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin: 20px 2px 9px;
+ }
+
+ .section-title h3 {
+ margin: 0;
+ color: var(--navy);
+ font-size: 16px;
+ }
+
+ .text-button {
+ border: 0;
+ color: var(--green-dark);
+ background: transparent;
+ cursor: pointer;
+ font-size: 11px;
+ font-weight: 850;
+ }
+
+ .metric-grid {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 8px;
+ }
+
+ .metric {
+ padding: 11px 8px;
+ border: 1px solid var(--line);
+ border-radius: 13px;
+ background: #fff;
+ text-align: center;
+ }
+
+ .metric strong {
+ display: block;
+ color: var(--navy);
+ font-size: 16px;
+ line-height: 1.2;
+ }
+
+ .metric span {
+ color: var(--muted);
+ font-size: 9px;
+ }
+
+ .list-item {
+ display: grid;
+ grid-template-columns: 38px 1fr auto;
+ gap: 11px;
+ align-items: center;
+ padding: 11px 0;
+ border-bottom: 1px solid var(--line);
+ }
+
+ .list-item:last-child {
+ padding-bottom: 0;
+ border-bottom: 0;
+ }
+
+ .list-item:first-child {
+ padding-top: 0;
+ }
+
+ .list-icon {
+ display: grid;
+ width: 38px;
+ height: 38px;
+ place-items: center;
+ border-radius: 12px;
+ color: var(--green-dark);
+ background: var(--green-soft);
+ font-size: 17px;
+ font-weight: 900;
+ }
+
+ .list-copy strong {
+ display: block;
+ color: var(--navy);
+ font-size: 13px;
+ }
+
+ .list-copy span {
+ display: block;
+ margin-top: 2px;
+ color: var(--muted);
+ font-size: 10px;
+ }
+
+ .status-dot {
+ width: 8px;
+ height: 8px;
+ border-radius: 50%;
+ background: var(--green);
+ box-shadow: 0 0 0 4px var(--green-soft);
+ }
+
+ .bottom-nav {
+ position: absolute;
+ z-index: 50;
+ right: 0;
+ bottom: 0;
+ left: 0;
+ display: none;
+ grid-template-columns: repeat(4, 1fr);
+ padding: 9px 8px 12px;
+ border-top: 1px solid var(--line);
+ background: rgba(255, 255, 255, 0.96);
+ backdrop-filter: blur(16px);
+ }
+
+ .bottom-nav.visible {
+ display: grid;
+ }
+
+ .nav-button {
+ display: grid;
+ gap: 2px;
+ place-items: center;
+ border: 0;
+ color: #8993a0;
+ background: transparent;
+ cursor: pointer;
+ font-size: 9px;
+ font-weight: 750;
+ }
+
+ .nav-button .nav-icon {
+ display: grid;
+ width: 31px;
+ height: 27px;
+ place-items: center;
+ border-radius: 9px;
+ font-size: 16px;
+ }
+
+ .nav-button.active {
+ color: var(--green-dark);
+ }
+
+ .nav-button.active .nav-icon {
+ background: var(--green-soft);
+ }
+
+ .ai-fab {
+ position: absolute;
+ z-index: 52;
+ right: 18px;
+ bottom: 78px;
+ display: none;
+ width: 52px;
+ height: 52px;
+ place-items: center;
+ border: 0;
+ border-radius: 18px;
+ color: #fff;
+ background: linear-gradient(135deg, var(--navy), var(--green));
+ box-shadow: 0 10px 25px rgba(11, 31, 54, 0.28);
+ cursor: pointer;
+ font-size: 19px;
+ font-weight: 900;
+ }
+
+ .ai-fab.visible {
+ display: grid;
+ }
+
+ .onboarding {
+ color: #fff;
+ background:
+  radial-gradient(circle at 80% 10%, rgba(88, 224, 174, 0.22), transparent 30%),
+  linear-gradient(150deg, #0b1f36, #123650 65%, #0b7457 130%);
+ }
+
+ .onboarding .status-bar {
+ color: #fff;
+ background: transparent;
+ }
+
+ .onboard-head {
+ margin: 28px 0 26px;
+ }
+
+ .onboard-logo {
+ display: inline-flex;
+ gap: 9px;
+ align-items: center;
+ margin-bottom: 30px;
+ font-size: 15px;
+ font-weight: 900;
+ }
+
+ .onboard-head h1 {
+ max-width: 330px;
+ margin: 0 0 12px;
+ font-size: 32px;
+ line-height: 1.16;
+ letter-spacing: -0.04em;
+ }
+
+ .onboard-head p {
+ color: rgba(255, 255, 255, 0.72);
+ font-size: 13px;
+ }
+
+ .step-dots {
+ display: flex;
+ gap: 7px;
+ margin-bottom: 20px;
+ }
+
+ .step-dot {
+ width: 28px;
+ height: 5px;
+ border-radius: 999px;
+ background: rgba(255, 255, 255, 0.18);
+ transition: 0.2s ease;
+ }
+
+ .step-dot.active {
+ width: 48px;
+ background: #62e2b3;
+ }
+
+ .onboard-step {
+ display: none;
+ animation: screen-in 0.25s ease;
+ }
+
+ .onboard-step.active {
+ display: block;
+ }
+
+ .onboard-step h2 {
+ margin: 0 0 6px;
+ font-size: 22px;
+ }
+
+ .onboard-step > p {
+ margin-top: 0;
+ color: rgba(255, 255, 255, 0.68);
+ font-size: 12px;
+ }
+
+ .choice-grid {
+ display: grid;
+ gap: 10px;
+ margin: 18px 0;
+ }
+
+ .choice {
+ display: grid;
+ grid-template-columns: 43px 1fr 22px;
+ gap: 12px;
+ align-items: center;
+ width: 100%;
+ padding: 14px;
+ border: 1px solid rgba(255, 255, 255, 0.14);
+ border-radius: 15px;
+ color: #fff;
+ background: rgba(255, 255, 255, 0.07);
+ cursor: pointer;
+ text-align: left;
+ }
+
+ .choice.selected {
+ border-color: #62e2b3;
+ background: rgba(98, 226, 179, 0.16);
+ box-shadow: inset 0 0 0 1px rgba(98, 226, 179, 0.35);
+ }
+
+ .choice-icon {
+ display: grid;
+ width: 43px;
+ height: 43px;
+ place-items: center;
+ border-radius: 13px;
+ background: rgba(255, 255, 255, 0.12);
+ font-size: 20px;
+ }
+
+ .choice strong {
+ display: block;
+ font-size: 13px;
+ }
+
+ .choice small {
+ display: block;
+ margin-top: 2px;
+ color: rgba(255, 255, 255, 0.62);
+ font-size: 10px;
+ }
+
+ .choice-check {
+ display: grid;
+ width: 20px;
+ height: 20px;
+ place-items: center;
+ border: 1px solid rgba(255, 255, 255, 0.3);
+ border-radius: 50%;
+ font-size: 10px;
+ }
+
+ .choice.selected .choice-check {
+ color: var(--green-dark);
+ background: #62e2b3;
+ }
+
+ .onboard-actions {
+ display: flex;
+ gap: 8px;
+ margin-top: 18px;
+ }
+
+ .onboard-actions .button {
+ flex: 1;
+ }
+
+ .permission-row {
+ display: grid;
+ grid-template-columns: 1fr auto;
+ gap: 12px;
+ align-items: center;
+ padding: 13px 0;
+ border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+ }
+
+ .permission-row:last-child {
+ border-bottom: 0;
+ }
+
+ .permission-row strong {
+ display: block;
+ font-size: 13px;
+ }
+
+ .permission-row small {
+ display: block;
+ color: rgba(255, 255, 255, 0.62);
+ font-size: 10px;
+ }
+
+ .switch {
+ position: relative;
+ display: inline-block;
+ width: 43px;
+ height: 25px;
+ flex: 0 0 auto;
+ }
+
+ .switch input {
+ width: 0;
+ height: 0;
+ opacity: 0;
+ }
+
+ .slider {
+ position: absolute;
+ inset: 0;
+ border-radius: 999px;
+ background: #c8d0da;
+ cursor: pointer;
+ transition: 0.2s;
+ }
+
+ .slider::before {
+ position: absolute;
+ bottom: 3px;
+ left: 3px;
+ width: 19px;
+ height: 19px;
+ border-radius: 50%;
+ background: #fff;
+ box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+ content: "";
+ transition: 0.2s;
+ }
+
+ .switch input:checked + .slider {
+ background: var(--green);
+ }
+
+ .switch input:checked + .slider::before {
+ transform: translateX(18px);
+ }
+
+ .onboarding .slider {
+ background: rgba(255, 255, 255, 0.22);
+ }
+
+ .analysis-orbit {
+ position: relative;
+ width: 145px;
+ height: 145px;
+ margin: 38px auto 24px;
+ border: 1px solid rgba(255, 255, 255, 0.15);
+ border-radius: 50%;
+ }
+
+ .analysis-orbit::before,
+ .analysis-orbit::after {
+ position: absolute;
+ border-radius: 50%;
+ content: "";
+ }
+
+ .analysis-orbit::before {
+ inset: 18px;
+ border: 2px dashed rgba(98, 226, 179, 0.55);
+ animation: spin 5s linear infinite;
+ }
+
+ .analysis-orbit::after {
+ inset: 43px;
+ background: radial-gradient(circle, #6ae8b9, #129c70);
+ box-shadow: 0 0 35px rgba(98, 226, 179, 0.5);
+ animation: pulse 1.6s ease-in-out infinite;
+ }
+
+ @keyframes spin {
+ to { transform: rotate(360deg); }
+ }
+
+ @keyframes pulse {
+ 50% { transform: scale(1.08); }
+ }
+
+ .analysis-list {
+ display: grid;
+ gap: 8px;
+ margin-top: 20px;
+ }
+
+ .analysis-line {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 10px 12px;
+ border-radius: 11px;
+ background: rgba(255, 255, 255, 0.08);
+ font-size: 11px;
+ }
+
+ .analysis-line span:last-child {
+ color: #70eabd;
+ font-weight: 850;
+ }
+
+ .report-panel {
+ padding: 18px;
+ border: 1px solid rgba(98, 226, 179, 0.42);
+ border-radius: 18px;
+ background: rgba(98, 226, 179, 0.12);
+ }
+
+ .report-number {
+ margin: 5px 0;
+ color: #7ef0c6;
+ font-size: 38px;
+ font-weight: 950;
+ letter-spacing: -0.04em;
+ }
+
+ .confidence {
+ display: flex;
+ gap: 7px;
+ align-items: center;
+ margin: 12px 0;
+ color: rgba(255, 255, 255, 0.65);
+ font-size: 10px;
+ }
+
+ .confidence-bar {
+ flex: 1;
+ height: 6px;
+ overflow: hidden;
+ border-radius: 99px;
+ background: rgba(255, 255, 255, 0.12);
+ }
+
+ .confidence-fill {
+ width: 72%;
+ height: 100%;
+ border-radius: inherit;
+ background: #65e6b7;
+ }
+
+ .energy-flow {
+ position: relative;
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 9px;
+ margin-top: 10px;
+ }
+
+ .energy-node {
+ padding: 12px 5px;
+ border-radius: 13px;
+ background: #f5f8fb;
+ text-align: center;
+ }
+
+ .energy-node span {
+ display: block;
+ color: var(--muted);
+ font-size: 9px;
+ }
+
+ .energy-node strong {
+ display: block;
+ margin: 3px 0;
+ color: var(--navy);
+ font-size: 14px;
+ }
+
+ .energy-node small {
+ color: var(--green-dark);
+ font-size: 9px;
+ }
+
+ .chart {
+ position: relative;
+ height: 158px;
+ overflow: hidden;
+ border-radius: 14px;
+ background:
+  linear-gradient(to bottom, transparent 24%, rgba(131, 146, 165, 0.12) 25%, transparent 26%),
+  linear-gradient(to bottom, transparent 49%, rgba(131, 146, 165, 0.12) 50%, transparent 51%),
+  linear-gradient(to bottom, transparent 74%, rgba(131, 146, 165, 0.12) 75%, transparent 76%),
+  #f8fafc;
+ }
+
+ .chart svg {
+ width: 100%;
+ height: 100%;
+ }
+
+ .chart-labels {
+ display: flex;
+ justify-content: space-between;
+ margin-top: 5px;
+ color: #98a2b0;
+ font-size: 8px;
+ }
+
+ .reason-chips {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 6px;
+ margin-top: 10px;
+ }
+
+ .reason-chip {
+ padding: 6px 8px;
+ border: 1px solid #cfe1f6;
+ border-radius: 999px;
+ color: #315f99;
+ background: var(--blue-soft);
+ font-size: 9px;
+ font-weight: 750;
+ }
+
+ .plan-card {
+ position: relative;
+ display: grid;
+ grid-template-columns: 25px 1fr auto;
+ gap: 9px;
+ align-items: center;
+ margin-bottom: 8px;
+ padding: 12px;
+ border: 1px solid var(--line);
+ border-radius: 13px;
+ cursor: pointer;
+ }
+
+ .plan-card.selected {
+ border-color: var(--green);
+ background: var(--green-soft);
+ }
+
+ .radio {
+ display: grid;
+ width: 21px;
+ height: 21px;
+ place-items: center;
+ border: 2px solid #bdc7d2;
+ border-radius: 50%;
+ }
+
+ .plan-card.selected .radio {
+ border-color: var(--green);
+ }
+
+ .plan-card.selected .radio::after {
+ width: 11px;
+ height: 11px;
+ border-radius: 50%;
+ background: var(--green);
+ content: "";
+ }
+
+ .plan-copy strong {
+ display: block;
+ color: var(--navy);
+ font-size: 12px;
+ }
+
+ .plan-copy small {
+ color: var(--muted);
+ font-size: 9px;
+ }
+
+ .plan-price {
+ color: var(--navy);
+ font-size: 13px;
+ font-weight: 900;
+ text-align: right;
+ }
+
+ .plan-price small {
+ display: block;
+ color: var(--green-dark);
+ font-size: 9px;
+ }
+
+ .explain {
+ overflow: hidden;
+ border: 1px solid var(--line);
+ border-radius: 13px;
+ background: #fff;
+ }
+
+ .explain summary {
+ padding: 13px;
+ color: var(--navy);
+ cursor: pointer;
+ font-size: 12px;
+ font-weight: 850;
+ }
+
+ .explain-body {
+ padding: 0 13px 13px;
+ color: var(--muted);
+ font-size: 10px;
+ }
+
+ .device-card {
+ display: grid;
+ grid-template-columns: 54px 1fr auto;
+ gap: 12px;
+ align-items: center;
+ margin-bottom: 10px;
+ padding: 14px;
+ border: 1px solid var(--line);
+ border-radius: 16px;
+ background: #fff;
+ }
+
+ .device-art {
+ display: grid;
+ width: 54px;
+ height: 54px;
+ place-items: center;
+ border-radius: 16px;
+ color: var(--green-dark);
+ background: linear-gradient(135deg, var(--green-soft), #d7f5ea);
+ font-size: 24px;
+ }
+
+ .device-copy strong {
+ display: block;
+ color: var(--navy);
+ font-size: 13px;
+ }
+
+ .device-copy span {
+ display: block;
+ margin-top: 2px;
+ color: var(--muted);
+ font-size: 9px;
+ }
+
+ .device-kpi {
+ color: var(--navy);
+ font-size: 12px;
+ font-weight: 850;
+ text-align: right;
+ }
+
+ .device-kpi small {
+ display: block;
+ color: var(--green-dark);
+ font-size: 9px;
+ }
+
+ .profile-head {
+ display: flex;
+ gap: 13px;
+ align-items: center;
+ padding: 16px;
+ color: #fff;
+ background: linear-gradient(135deg, var(--navy), var(--navy-2));
+ }
+
+ .avatar {
+ display: grid;
+ width: 54px;
+ height: 54px;
+ place-items: center;
+ border: 2px solid rgba(255, 255, 255, 0.2);
+ border-radius: 18px;
+ background: rgba(255, 255, 255, 0.12);
+ font-size: 22px;
+ }
+
+ .profile-head strong {
+ display: block;
+ font-size: 16px;
+ }
+
+ .profile-head span {
+ color: rgba(255, 255, 255, 0.65);
+ font-size: 10px;
+ }
+
+ .achievement-grid {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 8px;
+ }
+
+ .achievement {
+ padding: 10px 5px;
+ border-radius: 13px;
+ background: #f7f9fc;
+ text-align: center;
+ }
+
+ .achievement-icon {
+ font-size: 22px;
+ }
+
+ .achievement strong {
+ display: block;
+ margin-top: 4px;
+ color: var(--navy);
+ font-size: 9px;
+ }
+
+ .achievement span {
+ color: var(--muted);
+ font-size: 8px;
+ }
+
+ .emergency {
+ color: #fff;
+ background:
+  radial-gradient(circle at 50% 5%, rgba(225, 83, 83, 0.25), transparent 30%),
+  linear-gradient(155deg, #190f18, #271823 60%, #142b31);
+ }
+
+ .emergency .status-bar {
+ color: #fff;
+ background: rgba(25, 15, 24, 0.78);
+ }
+
+ .emergency .top-row h2,
+ .emergency .top-row h3 {
+ color: #fff;
+ }
+
+ .emergency-banner {
+ padding: 18px;
+ border: 1px solid rgba(225, 83, 83, 0.45);
+ border-radius: 18px;
+ background: rgba(225, 83, 83, 0.12);
+ }
+
+ .emergency-banner strong {
+ display: block;
+ font-size: 14px;
+ }
+
+ .runtime {
+ margin: 8px 0;
+ font-size: 42px;
+ font-weight: 950;
+ letter-spacing: -0.05em;
+ }
+
+ .runtime small {
+ font-size: 13px;
+ font-weight: 700;
+ }
+
+ .emergency .surface {
+ border-color: rgba(255, 255, 255, 0.1);
+ background: rgba(255, 255, 255, 0.065);
+ box-shadow: none;
+ }
+
+ .emergency .surface h3,
+ .emergency .surface h4,
+ .emergency .list-copy strong {
+ color: #fff;
+ }
+
+ .emergency .list-copy span,
+ .emergency .muted {
+ color: rgba(255, 255, 255, 0.58);
+ }
+
+ .emergency .list-item {
+ border-color: rgba(255, 255, 255, 0.1);
+ }
+
+ .load-row {
+ display: grid;
+ grid-template-columns: 38px 1fr auto;
+ gap: 10px;
+ align-items: center;
+ padding: 11px 0;
+ border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+ }
+
+ .load-row:last-child {
+ border-bottom: 0;
+ }
+
+ .load-icon {
+ display: grid;
+ width: 36px;
+ height: 36px;
+ place-items: center;
+ border-radius: 11px;
+ background: rgba(255, 255, 255, 0.09);
+ }
+
+ .load-copy strong {
+ display: block;
+ font-size: 12px;
+ }
+
+ .load-copy span {
+ color: rgba(255, 255, 255, 0.55);
+ font-size: 9px;
+ }
+
+ .restored {
+ display: none;
+ padding: 24px;
+ border: 1px solid rgba(98, 226, 179, 0.4);
+ border-radius: 18px;
+ background: rgba(98, 226, 179, 0.12);
+ text-align: center;
+ }
+
+ .restored.show {
+ display: block;
+ }
+
+ .sheet-backdrop {
+ position: absolute;
+ z-index: 70;
+ inset: 0;
+ display: none;
+ align-items: flex-end;
+ background: rgba(5, 16, 28, 0.52);
+ backdrop-filter: blur(3px);
+ }
+
+ .sheet-backdrop.open {
+ display: flex;
+ }
+
+ .sheet {
+ width: 100%;
+ max-height: 82%;
+ overflow-y: auto;
+ padding: 13px 18px 24px;
+ border-radius: 25px 25px 0 0;
+ background: #fff;
+ animation: sheet-in 0.25s ease both;
+ }
+
+ @keyframes sheet-in {
+ from { transform: translateY(100%); }
+ to { transform: none; }
+ }
+
+ .sheet-handle {
+ width: 48px;
+ height: 5px;
+ margin: 0 auto 15px;
+ border-radius: 99px;
+ background: #d5dce5;
+ }
+
+ .chat {
+ display: grid;
+ gap: 10px;
+ min-height: 190px;
+ margin: 14px 0;
+ padding: 13px;
+ border-radius: 15px;
+ background: #f5f7fa;
+ }
+
+ .bubble {
+ max-width: 88%;
+ padding: 10px 12px;
+ border-radius: 14px;
+ font-size: 11px;
+ }
+
+ .bubble.ai {
+ justify-self: start;
+ border-bottom-left-radius: 4px;
+ color: var(--navy);
+ background: #fff;
+ box-shadow: 0 4px 12px rgba(11, 31, 54, 0.06);
+ }
+
+ .bubble.user {
+ justify-self: end;
+ border-bottom-right-radius: 4px;
+ color: #fff;
+ background: var(--green);
+ }
+
+ .prompt-chips {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 7px;
+ }
+
+ .prompt-chip {
+ padding: 7px 9px;
+ border: 1px solid var(--line);
+ border-radius: 999px;
+ color: var(--navy);
+ background: #fff;
+ cursor: pointer;
+ font-size: 9px;
+ font-weight: 750;
+ }
+
+ .voice-row {
+ display: grid;
+ grid-template-columns: 1fr 44px;
+ gap: 8px;
+ margin-top: 12px;
+ }
+
+ .voice-input {
+ padding: 10px 12px;
+ border: 1px solid var(--line);
+ border-radius: 12px;
+ outline: none;
+ font-size: 11px;
+ }
+
+ .voice-input:focus {
+ border-color: var(--green);
+ box-shadow: 0 0 0 3px var(--green-soft);
+ }
+
+ .mic-button {
+ border: 0;
+ border-radius: 13px;
+ color: #fff;
+ background: var(--green);
+ cursor: pointer;
+ font-size: 17px;
+ }
+
+ .mic-button.listening {
+ background: var(--red);
+ animation: pulse 1s ease-in-out infinite;
+ }
+
+ .camp-grid {
+ display: grid;
+ grid-template-columns: repeat(3, 1fr);
+ gap: 8px;
+ margin: 12px 0;
+ }
+
+ .camp-option {
+ padding: 10px 6px;
+ border: 1px solid var(--line);
+ border-radius: 12px;
+ background: #fff;
+ cursor: pointer;
+ text-align: center;
+ font-size: 10px;
+ }
+
+ .camp-option.selected {
+ border-color: var(--green);
+ color: var(--green-dark);
+ background: var(--green-soft);
+ font-weight: 850;
+ }
+
+ .range-row {
+ display: grid;
+ grid-template-columns: 1fr auto;
+ gap: 12px;
+ align-items: center;
+ margin: 14px 0;
+ }
+
+ .range-row input {
+ width: 100%;
+ accent-color: var(--green);
+ }
+
+ .camp-result {
+ display: none;
+ margin-top: 13px;
+ padding: 15px;
+ border: 1px solid #bfe8d6;
+ border-radius: 14px;
+ background: var(--green-soft);
+ }
+
+ .camp-result.show {
+ display: block;
+ }
+
+ .toast {
+ position: absolute;
+ z-index: 90;
+ right: 18px;
+ bottom: 88px;
+ left: 18px;
+ display: none;
+ gap: 10px;
+ align-items: center;
+ padding: 12px 14px;
+ border-radius: 13px;
+ color: #fff;
+ background: rgba(11, 31, 54, 0.94);
+ box-shadow: 0 12px 28px rgba(11, 31, 54, 0.3);
+ font-size: 11px;
+ font-weight: 700;
+ }
+
+ .toast.show {
+ display: flex;
+ animation: toast-in 0.3s ease;
+ }
+
+ @keyframes toast-in {
+ from {
+  opacity: 0;
+  transform: translateY(12px);
+ }
+ to {
+  opacity: 1;
+  transform: none;
+ }
+ }
+
+ .toast-icon {
+ display: grid;
+ width: 25px;
+ height: 25px;
+ place-items: center;
+ border-radius: 50%;
+ color: var(--green-dark);
+ background: #69e8ba;
+ font-weight: 900;
+ }
+
+ .logic-step {
+ display: grid;
+ grid-template-columns: 28px 1fr;
+ gap: 9px;
+ margin-bottom: 10px;
+ align-items: start;
+ }
+
+ .logic-number {
+ display: grid;
+ width: 25px;
+ height: 25px;
+ place-items: center;
+ border-radius: 8px;
+ color: #fff;
+ background: var(--navy);
+ font-size: 10px;
+ font-weight: 900;
+ }
+
+ .logic-step strong {
+ display: block;
+ color: var(--navy);
+ font-size: 12px;
+ }
+
+ .logic-step span {
+ color: var(--muted);
+ font-size: 10px;
+ }
+
+ @media (max-width: 1080px) {
+ .prototype-shell {
+  grid-template-columns: minmax(320px, 430px) minmax(250px, 320px);
+ }
+
+ .intro-panel {
+  display: none;
+ }
+ }
+
+ @media (max-width: 760px) {
+ body {
+  background: #f5f7fa;
+ }
+
+ .prototype-shell {
+  display: block;
+  min-height: 100vh;
+  padding: 0;
+ }
+
+ .phone {
+  width: 100%;
+  height: 100vh;
+  min-height: 640px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+ }
+
+ .phone::before {
+  display: none;
+ }
+
+ .status-bar {
+  padding-top: env(safe-area-inset-top, 0);
+ }
+
+ .control-panel {
+  display: none;
+ }
+ }
+ </style>
+</head>
+
+<body>
+ <main class="prototype-shell">
+ <aside class="side-panel intro-panel">
+ <div class="brand-mark">
+  <span class="brand-dot"></span>
+  <span>AI Energy Life Assistant</span>
+ </div>
+
+ <h1>能源生活助手<br />高保真交互原型</h1>
+ <p>
+  原型采用单文件实现，无需联网或安装依赖。所有数据均为演示数据，
+  用于展示AI如何从数据洞察走向设备执行和结果验证。
+ </p>
+
+ <ul class="demo-list">
+  <li><span>1</span><div>完成首次设定，体验无储能设备与储能设备用户的分层入口。</div></li>
+  <li><span>2</span><div>接受AI错峰计划，观察首页状态和节省金额变化。</div></li>
+  <li><span>3</span><div>打开AI对话，询问建议依据或模拟语音控制。</div></li>
+  <li><span>4</span><div>模拟停电，关闭非必要负载并查看续航实时变化。</div></li>
+  <li><span>5</span><div>进入露营规划，选择设备与天数生成能源建议。</div></li>
+ </ul>
+
+ <div class="surface">
+  <h4>核心演示原则</h4>
+  <p class="small muted">
+  不以“每天看数据”制造日活，而以“AI发现机会—用户授权—设备执行—结果验证”建立信任闭环。
+  </p>
+ </div>
+ </aside>
+
+ <div class="phone" id="phone">
+ <div class="status-bar dark" id="prototype-status-bar">
+  <span>08:16</span>
+  <span>原型 · 演示数据</span>
+  <span>100%</span>
+ </div>
+
+ <!-- 首次使用 -->
+ <section class="screen no-nav onboarding active" id="screen-onboarding">
+  <div class="onboard-head">
+  <div class="onboard-logo">
+  <span class="brand-dot"></span>
+  <span>AI Energy Life Assistant</span>
+  </div>
+  <h1>让AI替你安排能源，而不是再多看一张图表。</h1>
+  <p>约2分钟完成设定。你可以随时撤回数据权限或关闭自动执行。</p>
+  </div>
+
+  <div class="step-dots" aria-label="设置进度">
+  <span class="step-dot active"></span>
+  <span class="step-dot"></span>
+  <span class="step-dot"></span>
+  <span class="step-dot"></span>
+  </div>
+
+  <div class="onboard-step active" data-step="0">
+  <h2>你最想解决什么？</h2>
+  <p>AI会根据目标决定首页内容和建议优先级。</p>
+
+  <div class="choice-grid" data-choice-group="goal">
+  <button class="choice selected" data-value="save">
+   <span class="choice-icon">＄</span>
+   <span>
+   <strong>降低每月电费</strong>
+   <small>识别高价时段、浪费和可调度负载</small>
+   </span>
+   <span class="choice-check">✓</span>
+  </button>
+
+  <button class="choice" data-value="backup">
+   <span class="choice-icon">⚡</span>
+   <span>
+   <strong>提升停电保障</strong>
+   <small>预测续航并优先保障关键设备</small>
+   </span>
+   <span class="choice-check">✓</span>
+  </button>
+
+  <button class="choice" data-value="camp">
+   <span class="choice-icon">△</span>
+   <span>
+   <strong>规划户外能源</strong>
+   <small>根据设备、天数和天气计算容量</small>
+   </span>
+   <span class="choice-check">✓</span>
+  </button>
+  </div>
+
+  <div class="onboard-actions">
+  <button class="button full" onclick="nextOnboardStep()">继续</button>
+  </div>
+  </div>
+
+  <div class="onboard-step" data-step="1">
+  <h2>你有哪些能源数据？</h2>
+  <p>没有储能设备也可以使用，但功能深度取决于数据和可控设备。</p>
+
+  <div class="choice-grid" data-choice-group="dataSource">
+  <button class="choice selected" data-value="storage">
+   <span class="choice-icon">▣</span>
+   <span>
+   <strong>我有储能设备</strong>
+   <small>可获得预测、调度、执行和完整验证</small>
+   </span>
+   <span class="choice-check">✓</span>
+  </button>
+
+  <button class="choice" data-value="meter">
+   <span class="choice-icon">⌁</span>
+   <span>
+   <strong>智能电表或插座</strong>
+   <small>可监测异常并验证部分优化效果</small>
+   </span>
+   <span class="choice-check">✓</span>
+  </button>
+
+  <button class="choice" data-value="bill">
+   <span class="choice-icon">▤</span>
+   <span>
+   <strong>目前只有电费账单</strong>
+   <small>先获得账单解读、预算和费率建议</small>
+   </span>
+   <span class="choice-check">✓</span>
+  </button>
+  </div>
+
+  <div class="onboard-actions">
+  <button class="button secondary" onclick="previousOnboardStep()">返回</button>
+  <button class="button" onclick="nextOnboardStep()">连接并继续</button>
+  </div>
+  </div>
+
+  <div class="onboard-step" data-step="2">
+  <h2>确认数据权限</h2>
+  <p>只申请完成能源优化所必需的数据，不出售个人能源数据。</p>
+
+  <div>
+  <div class="permission-row">
+   <span>
+   <strong>设备能源数据</strong>
+   <small>用于预测负载、识别异常和验证收益</small>
+   </span>
+   <label class="switch">
+   <input id="permission-energy" type="checkbox" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="permission-row">
+   <span>
+   <strong>地区电价</strong>
+   <small>用于识别峰谷价格和计算电费</small>
+   </span>
+   <label class="switch">
+   <input id="permission-rate" type="checkbox" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="permission-row">
+   <span>
+   <strong>天气和日照</strong>
+   <small>用于预测光伏发电，不保存精确位置历史</small>
+   </span>
+   <label class="switch">
+   <input id="permission-weather" type="checkbox" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="permission-row">
+   <span>
+   <strong>重要提醒</strong>
+   <small>仅推送显著省钱机会、异常和停电事件</small>
+   </span>
+   <label class="switch">
+   <input id="permission-push" type="checkbox" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+  </div>
+
+  <div class="onboard-actions">
+  <button class="button secondary" onclick="previousOnboardStep()">返回</button>
+  <button class="button" onclick="startAnalysis()">授权并分析</button>
+  </div>
+  </div>
+
+  <div class="onboard-step" data-step="3" id="analysis-step">
+  <div id="analysis-loading">
+  <div class="analysis-orbit"></div>
+  <h2 style="text-align:center;">AI正在建立家庭能源基线</h2>
+  <p style="text-align:center;">预测结果不会直接控制设备，首期操作均需确认。</p>
+
+  <div class="analysis-list">
+   <div class="analysis-line">
+   <span>读取最近30天能源数据</span>
+   <span>已完成</span>
+   </div>
+   <div class="analysis-line">
+   <span>匹配当地峰谷电价</span>
+   <span>已完成</span>
+   </div>
+   <div class="analysis-line">
+   <span>识别可调度负载</span>
+   <span id="analysis-progress-text">分析中</span>
+   </div>
+  </div>
+  </div>
+
+  <div id="analysis-result" hidden>
+  <p class="eyebrow" style="color:#72eabc;">INITIAL ENERGY REPORT</p>
+  <h2>你的初始能源报告已生成</h2>
+  <p>基于30天数据、当地费率和未来天气生成。前两周仍处于个性化学习期。</p>
+
+  <div class="report-panel">
+   <span class="small">预计年度可优化金额</span>
+   <div class="report-number" id="onboard-saving">$286</div>
+   <span class="small" id="onboard-level">完整自动优化能力</span>
+
+   <div class="confidence">
+   <span>当前置信度</span>
+   <div class="confidence-bar">
+   <div class="confidence-fill" id="confidence-fill"></div>
+   </div>
+   <strong id="confidence-label">72%</strong>
+   </div>
+
+   <p class="tiny">
+   这是中等模型预测，并非保证收益；首页“已验证节省”只记录真实执行后的净结果。
+   </p>
+  </div>
+
+  <div class="onboard-actions">
+   <button class="button full" onclick="finishOnboarding()">查看今天的AI计划</button>
+  </div>
+  </div>
+  </div>
+ </section>
+
+ <!-- 首页 -->
+ <section class="screen" id="screen-home">
+  <div class="top-row">
+  <div>
+  <p class="eyebrow">TUESDAY · 25 AUG</p>
+  <h2>早上好，Alex</h2>
+  </div>
+  <button class="icon-button" onclick="showToast('今天没有设备故障或高风险告警')">♢</button>
+  </div>
+
+  <article class="surface hero-card" id="home-plan-card">
+  <p class="small" id="home-plan-label">今日AI能源计划</p>
+  <div class="hero-amount" id="home-plan-amount">预计省 $2.10</div>
+  <p class="small" id="home-plan-copy">
+  14:00—17:00电价最高，将汽车充电推迟至22:00可减少高价购电。
+  </p>
+  <div class="hero-actions" id="home-plan-actions">
+  <button class="button primary-light" onclick="showScreen('energy')">查看并执行</button>
+  <button class="button ghost-light" onclick="openAssistant('为什么这样安排？')">问问AI</button>
+  </div>
+  </article>
+
+  <div class="metric-grid">
+  <div class="metric">
+  <strong id="today-saving">$1.25</strong>
+  <span>今日已验证</span>
+  </div>
+  <div class="metric">
+  <strong id="month-saving">$18.50</strong>
+  <span>本月已验证</span>
+  </div>
+  <div class="metric">
+  <strong>72%</strong>
+  <span>光伏自用率</span>
+  </div>
+  </div>
+
+  <div class="section-title">
+  <h3>AI为什么提醒我</h3>
+  <button class="text-button" onclick="openAssistant('展示完整推理依据')">查看依据</button>
+  </div>
+
+  <article class="surface">
+  <div class="reason-chips">
+  <span class="reason-chip">峰值电价 $0.41/kWh</span>
+  <span class="reason-chip">22:00后 $0.14/kWh</span>
+  <span class="reason-chip">当前SOC 78%</span>
+  <span class="reason-chip">明日晴朗</span>
+  </div>
+  <p class="small muted" style="margin:12px 0 0;">
+  AI预测汽车今晚需要5.2kWh。延迟充电不会影响明早7:00出发目标。
+  </p>
+  </article>
+
+  <div class="section-title">
+  <h3>正在运行</h3>
+  <button class="text-button" onclick="showScreen('devices')">全部设备</button>
+  </div>
+
+  <article class="surface">
+  <div class="list-item">
+  <div class="list-icon">☀</div>
+  <div class="list-copy">
+   <strong>光伏优先供给家庭</strong>
+   <span>当前发电3.2kW｜家庭负载1.8kW</span>
+  </div>
+  <span class="status-dot"></span>
+  </div>
+
+  <div class="list-item">
+  <div class="list-icon">▣</div>
+  <div class="list-copy">
+   <strong id="schedule-title">储能设备保持备用电量</strong>
+   <span id="schedule-subtitle">SOC 78%｜应急储备20%</span>
+  </div>
+  <span class="pill" id="schedule-pill">自动</span>
+  </div>
+  </article>
+
+  <div class="section-title">
+  <h3>场景工具</h3>
+  </div>
+
+  <div class="metric-grid">
+  <button class="metric" style="cursor:pointer;" onclick="openCamping()">
+  <strong>△</strong>
+  <span>露营规划</span>
+  </button>
+  <button class="metric" style="cursor:pointer;" onclick="simulateOutage()">
+  <strong>⚡</strong>
+  <span>应急演示</span>
+  </button>
+  <button class="metric" style="cursor:pointer;" onclick="openAssistant('这个月省了多少钱？')">
+  <strong>AI</strong>
+  <span>语音问答</span>
+  </button>
+  </div>
+ </section>
+
+ <!-- 能源管理与计划 -->
+ <section class="screen" id="screen-energy">
+  <div class="top-row">
+  <div>
+  <p class="eyebrow">ENERGY OPTIMIZATION</p>
+  <h2>能源计划</h2>
+  </div>
+  <button class="icon-button" onclick="openAssistant('解释今天的能源计划')">AI</button>
+  </div>
+
+  <article class="surface">
+  <div class="top-row" style="margin-bottom:8px;">
+  <div>
+   <h3>实时能量流</h3>
+   <p class="tiny muted" style="margin:0;">刚刚更新</p>
+  </div>
+  <span class="pill">运行正常</span>
+  </div>
+
+  <div class="energy-flow">
+  <div class="energy-node">
+   <span>光伏</span>
+   <strong>3.2 kW</strong>
+   <small>发电中</small>
+  </div>
+  <div class="energy-node">
+   <span>家庭</span>
+   <strong>1.8 kW</strong>
+   <small>低于预测</small>
+  </div>
+  <div class="energy-node">
+   <span>储能</span>
+   <strong>78%</strong>
+   <small>+1.4 kW</small>
+  </div>
+  </div>
+  </article>
+
+  <div class="section-title">
+  <h3>未来24小时预测</h3>
+  <span class="pill blue">置信度 81%</span>
+  </div>
+
+  <article class="surface">
+  <div class="chart" aria-label="能源预测曲线">
+  <svg viewBox="0 0 360 158" preserveAspectRatio="none" role="img">
+   <defs>
+   <linearGradient id="areaGreen" x1="0" y1="0" x2="0" y2="1">
+   <stop offset="0%" stop-color="#18ad78" stop-opacity="0.35"></stop>
+   <stop offset="100%" stop-color="#18ad78" stop-opacity="0"></stop>
+   </linearGradient>
+   <linearGradient id="peakRed" x1="0" y1="0" x2="0" y2="1">
+   <stop offset="0%" stop-color="#e15353" stop-opacity="0.2"></stop>
+   <stop offset="100%" stop-color="#e15353" stop-opacity="0"></stop>
+   </linearGradient>
+   </defs>
+   <rect x="203" y="0" width="47" height="158" fill="url(#peakRed)"></rect>
+   <path
+   d="M0,134 C35,132 47,116 71,100 C97,82 105,38 137,31 C167,25 180,54 199,78 C221,104 236,115 262,125 C295,137 330,135 360,140 L360,158 L0,158 Z"
+   fill="url(#areaGreen)"
+   ></path>
+   <path
+   d="M0,134 C35,132 47,116 71,100 C97,82 105,38 137,31 C167,25 180,54 199,78 C221,104 236,115 262,125 C295,137 330,135 360,140"
+   fill="none"
+   stroke="#18ad78"
+   stroke-width="4"
+   stroke-linecap="round"
+   ></path>
+   <path
+   d="M0,120 C45,112 76,121 105,102 C139,80 165,91 196,64 C222,42 247,72 278,88 C309,104 332,83 360,95"
+   fill="none"
+   stroke="#3978df"
+   stroke-width="3"
+   stroke-dasharray="7 5"
+   stroke-linecap="round"
+   ></path>
+  </svg>
+  </div>
+
+  <div class="chart-labels">
+  <span>08:00</span>
+  <span>12:00</span>
+  <span>16:00</span>
+  <span>20:00</span>
+  <span>00:00</span>
+  </div>
+
+  <div class="reason-chips">
+  <span class="reason-chip">绿色：光伏预测</span>
+  <span class="reason-chip">蓝色：家庭负载</span>
+  <span class="reason-chip">红区：高价时段</span>
+  </div>
+  </article>
+
+  <div class="section-title">
+  <h3>选择今晚充电方案</h3>
+  </div>
+
+  <div class="plan-card" data-plan="habit" onclick="selectPlan('habit')">
+  <span class="radio"></span>
+  <span class="plan-copy">
+  <strong>保持原习惯 · 18:00开始</strong>
+  <small>高价电占比83%，明早7:00充满</small>
+  </span>
+  <span class="plan-price">$3.80<small>基线</small></span>
+  </div>
+
+  <div class="plan-card selected" data-plan="ai" onclick="selectPlan('ai')">
+  <span class="radio"></span>
+  <span class="plan-copy">
+  <strong>AI错峰 · 22:00开始</strong>
+  <small>低价电＋储能，明早6:20充满</small>
+  </span>
+  <span class="plan-price">$2.45<small>省 $1.35</small></span>
+  </div>
+
+  <div class="plan-card" data-plan="green" onclick="selectPlan('green')">
+  <span class="radio"></span>
+  <span class="plan-copy">
+  <strong>光伏优先 · 明日10:30</strong>
+  <small>预计可再生能源占比91%，不适合早出发</small>
+  </span>
+  <span class="plan-price">$2.18<small>省 $1.62</small></span>
+  </div>
+
+  <details class="explain">
+  <summary>AI如何得出这个计划？</summary>
+  <div class="explain-body">
+  系统比较了当地电价、明日出发时间、汽车所需电量、储能设备当前SOC、
+  20%应急储备以及明日光伏预测。LLM只负责解释结果，调度由确定性约束优化器生成。
+  </div>
+  </details>
+
+  <div style="height:10px;"></div>
+  <button class="button full" id="apply-plan-button" onclick="applyPlan()">
+  确认并安排AI错峰计划
+  </button>
+ </section>
+
+ <!-- 设备 -->
+ <section class="screen" id="screen-devices">
+  <div class="top-row">
+  <div>
+  <p class="eyebrow">CONNECTED DEVICES</p>
+  <h2>设备</h2>
+  </div>
+  <button class="icon-button" onclick="showToast('正在扫描附近的设备…')">＋</button>
+  </div>
+
+  <article class="surface soft">
+  <div class="top-row" style="margin-bottom:0;">
+  <div>
+   <h3>家庭能源系统</h3>
+   <p class="tiny muted" style="margin:0;">4台在线 · 数据完整度96%</p>
+  </div>
+  <span class="pill">正常</span>
+  </div>
+  </article>
+
+  <div class="section-title">
+  <h3>储能设备</h3>
+  <span class="tiny muted">能源执行核心</span>
+  </div>
+
+  <div class="device-card">
+  <div class="device-art">▣</div>
+  <div class="device-copy">
+  <strong>储能设备家庭储能</strong>
+  <span>SOC 78% · 健康度98% · 在线</span>
+  </div>
+  <div class="device-kpi">+1.4kW<small>充电中</small></div>
+  </div>
+
+  <div class="device-card">
+  <div class="device-art">⌁</div>
+  <div class="device-copy">
+  <strong>家庭智能电表</strong>
+  <span>刚刚更新 · 今日8.5kWh</span>
+  </div>
+  <div class="device-kpi">1.8kW<small>当前负载</small></div>
+  </div>
+
+  <div class="section-title">
+  <h3>智能家居设备</h3>
+  <span class="tiny muted">关键设备</span>
+  </div>
+
+  <div class="device-card">
+  <div class="device-art">●</div>
+  <div class="device-copy">
+  <strong>门口安防摄像头</strong>
+  <span>已标记为停电关键负载</span>
+  </div>
+  <label class="switch">
+  <input type="checkbox" checked onchange="showToast('关键负载设置已更新')" />
+  <span class="slider"></span>
+  </label>
+  </div>
+
+  <div class="section-title">
+  <h3>无线耳机</h3>
+  <span class="pill orange">P2实验能力</span>
+  </div>
+
+  <div class="device-card">
+  <div class="device-art">◖◗</div>
+  <div class="device-copy">
+  <strong>无线耳机</strong>
+  <span>当前仅作为蓝牙麦克风与播报端</span>
+  </div>
+  <div class="device-kpi">86%<small>已连接</small></div>
+  </div>
+
+  <article class="surface" style="background:var(--orange-soft);">
+  <h4>为什么没有“Hey 小能直接控制能源”？</h4>
+  <p class="tiny muted" style="margin:0;">
+  深度语音依赖内部接口、账号权限、固件和安全验证。MVP不将未确认能力放入核心路径。
+  </p>
+  </article>
+ </section>
+
+ <!-- 个人与报告 -->
+ <section class="screen" id="screen-profile">
+  <div class="top-row">
+  <div>
+  <p class="eyebrow">MY ENERGY</p>
+  <h2>我的</h2>
+  </div>
+  <button class="icon-button" onclick="showToast('设置将在正式版开放')">⚙</button>
+  </div>
+
+  <article class="surface profile-head">
+  <div class="avatar">A</div>
+  <div>
+  <strong>Alex的家</strong>
+  <span>完整自动优化 · 数据完整度96%</span>
+  </div>
+  </article>
+
+  <div class="section-title">
+  <h3>本月省钱报告</h3>
+  <span class="pill">已验证</span>
+  </div>
+
+  <article class="surface">
+  <div class="metric-grid">
+  <div class="metric">
+   <strong id="profile-saving">$18.50</strong>
+   <span>净节省</span>
+  </div>
+  <div class="metric">
+   <strong>62%</strong>
+   <span>自动优化贡献</span>
+  </div>
+  <div class="metric">
+   <strong>89%</strong>
+   <span>调度成功率</span>
+  </div>
+  </div>
+
+  <div class="list-item" style="margin-top:13px;">
+  <div class="list-icon">↔</div>
+  <div class="list-copy">
+   <strong>峰谷移电</strong>
+   <span>扣除电池损耗后的净结果</span>
+  </div>
+  <strong class="small">$11.40</strong>
+  </div>
+
+  <div class="list-item">
+  <div class="list-icon">☀</div>
+  <div class="list-copy">
+   <strong>提高光伏自用</strong>
+   <span>按实际回购电价计算机会成本</span>
+  </div>
+  <strong class="small">$5.85</strong>
+  </div>
+
+  <div class="list-item">
+  <div class="list-icon">↓</div>
+  <div class="list-copy">
+   <strong>减少异常耗电</strong>
+   <span>与匹配历史日基线比较</span>
+  </div>
+  <strong class="small">$1.25</strong>
+  </div>
+  </article>
+
+  <div class="section-title">
+  <h3>个人成就</h3>
+  <span class="tiny muted">不依赖公开排行</span>
+  </div>
+
+  <article class="surface">
+  <div class="achievement-grid">
+  <div class="achievement">
+   <div class="achievement-icon">✓</div>
+   <strong>省电新手</strong>
+   <span>已验证$10</span>
+  </div>
+  <div class="achievement">
+   <div class="achievement-icon">⌁</div>
+   <strong>稳定托管</strong>
+   <span>连续14天</span>
+  </div>
+  <div class="achievement" style="opacity:0.48;">
+   <div class="achievement-icon">◇</div>
+   <strong>能源管家</strong>
+   <span>还需16天</span>
+  </div>
+  </div>
+  </article>
+
+  <article class="surface" style="background:var(--blue-soft);">
+  <div class="top-row" style="margin:0;">
+  <div>
+   <h4>同类家庭排行暂未开放</h4>
+   <p class="tiny muted" style="margin:0;">
+   当前同地区相似家庭样本不足100户，避免使用失真的冷启动排名。
+   </p>
+  </div>
+  <span class="pill blue">P2</span>
+  </div>
+  </article>
+
+  <button class="button secondary full" onclick="resetDemo()">重置全部演示数据</button>
+ </section>
+
+ <!-- 停电应急 -->
+ <section class="screen no-nav emergency" id="screen-emergency">
+  <div class="top-row">
+  <div>
+  <p class="eyebrow" style="color:#ff9999;">POWER OUTAGE DETECTED</p>
+  <h2>应急备电</h2>
+  </div>
+  <span class="pill red">停电中</span>
+  </div>
+
+  <div id="emergency-active">
+  <article class="emergency-banner">
+  <strong>储能设备已由认证硬件切换至备电</strong>
+  <div class="runtime"><span id="runtime-value">6.0</span><small> 小时</small></div>
+  <p class="small muted" style="margin:0;">
+   当前负载 <strong id="load-watts" style="color:#fff;">920W</strong>，
+   储能可用电量约 <strong style="color:#fff;">5.52kWh</strong>。
+  </p>
+  </article>
+
+  <div class="section-title">
+  <h3 style="color:#fff;">AI建议</h3>
+  <span class="pill orange">可延长至 <span id="potential-runtime">9.2</span>h</span>
+  </div>
+
+  <article class="surface">
+  <p class="small" style="margin:0;">
+   关闭电视、洗碗机和车库充电，可优先保障冰箱、路由器、照明和安防。
+   所有变更需你确认，AI不会绕过硬件安全策略。
+  </p>
+  </article>
+
+  <div class="section-title">
+  <h3 style="color:#fff;">负载优先级</h3>
+  <button class="text-button" style="color:#77e9bf;" onclick="applyCriticalPlan()">仅保留关键负载</button>
+  </div>
+
+  <article class="surface" id="load-list">
+  <div class="load-row">
+   <div class="load-icon">▤</div>
+   <div class="load-copy">
+   <strong>冰箱</strong>
+   <span>关键负载 · 180W</span>
+   </div>
+   <label class="switch">
+   <input class="load-toggle" type="checkbox" data-watts="180" checked disabled />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="load-row">
+   <div class="load-icon">◎</div>
+   <div class="load-copy">
+   <strong>路由器与照明</strong>
+   <span>关键负载 · 120W</span>
+   </div>
+   <label class="switch">
+   <input class="load-toggle" type="checkbox" data-watts="120" checked disabled />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="load-row">
+   <div class="load-icon">●</div>
+   <div class="load-copy">
+   <strong>智能家居设备安防</strong>
+   <span>关键负载 · 60W</span>
+   </div>
+   <label class="switch">
+   <input class="load-toggle" type="checkbox" data-watts="60" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="load-row">
+   <div class="load-icon">▱</div>
+   <div class="load-copy">
+   <strong>电视与影音</strong>
+   <span>非必要 · 160W</span>
+   </div>
+   <label class="switch">
+   <input class="load-toggle optional-load" type="checkbox" data-watts="160" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="load-row">
+   <div class="load-icon">▥</div>
+   <div class="load-copy">
+   <strong>洗碗机</strong>
+   <span>可延后 · 250W平均</span>
+   </div>
+   <label class="switch">
+   <input class="load-toggle optional-load" type="checkbox" data-watts="250" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+
+  <div class="load-row">
+   <div class="load-icon">⌁</div>
+   <div class="load-copy">
+   <strong>车库充电</strong>
+   <span>已限制 · 150W待机</span>
+   </div>
+   <label class="switch">
+   <input class="load-toggle optional-load" type="checkbox" data-watts="150" checked />
+   <span class="slider"></span>
+   </label>
+  </div>
+  </article>
+
+  <button class="button danger full" onclick="confirmEmergencyPlan()">
+  确认当前应急负载方案
+  </button>
+  <button class="button secondary full" style="margin-top:8px;" onclick="restorePower()">
+  演示：电网恢复
+  </button>
+  </div>
+
+  <div class="restored" id="restored-panel">
+  <div style="font-size:38px;">✓</div>
+  <h3 style="color:#8df0cb;">电网供电已恢复</h3>
+  <p class="small muted">
+  储能设备正在按硬件安全策略恢复正常模式，AI将在10分钟后生成本次停电报告。
+  </p>
+  <button class="button full" onclick="exitEmergency()">返回首页</button>
+  </div>
+ </section>
+
+ <!-- 底部导航 -->
+ <nav class="bottom-nav" id="bottom-nav" aria-label="主要导航">
+  <button class="nav-button active" data-target="home" onclick="showScreen('home')">
+  <span class="nav-icon">⌂</span>
+  <span>今日</span>
+  </button>
+  <button class="nav-button" data-target="energy" onclick="showScreen('energy')">
+  <span class="nav-icon">⌁</span>
+  <span>能源</span>
+  </button>
+  <button class="nav-button" data-target="devices" onclick="showScreen('devices')">
+  <span class="nav-icon">▦</span>
+  <span>设备</span>
+  </button>
+  <button class="nav-button" data-target="profile" onclick="showScreen('profile')">
+  <span class="nav-icon">◉</span>
+  <span>我的</span>
+  </button>
+ </nav>
+
+ <button class="ai-fab" id="ai-fab" onclick="openAssistant()" aria-label="打开AI助手">AI</button>
+
+ <!-- AI助手 -->
+ <div class="sheet-backdrop" id="assistant-backdrop" onclick="backdropClose(event, 'assistant-backdrop')">
+  <div class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="top-row">
+  <div>
+   <p class="eyebrow">AI ENERGY ASSISTANT</p>
+   <h3>问问AI能源管家</h3>
+  </div>
+  <button class="icon-button" onclick="closeSheet('assistant-backdrop')">×</button>
+  </div>
+
+  <div class="chat" id="chat">
+  <div class="bubble ai">
+   我可以解释用电、节省计算和设备计划。高风险控制会要求你在手机端确认。
+  </div>
+  </div>
+
+  <div class="prompt-chips">
+  <button class="prompt-chip" onclick="askAI('为什么这样安排？')">为什么这样安排？</button>
+  <button class="prompt-chip" onclick="askAI('这个月省了多少钱？')">这个月省了多少？</button>
+  <button class="prompt-chip" onclick="askAI('开启省电模式')">开启省电模式</button>
+  </div>
+
+  <div class="voice-row">
+  <input
+   class="voice-input"
+   id="voice-input"
+   type="text"
+   placeholder="输入问题，或点击麦克风模拟语音…"
+   onkeydown="submitChatOnEnter(event)"
+  />
+  <button class="mic-button" id="mic-button" onclick="simulateVoice()" aria-label="模拟语音输入">●</button>
+  </div>
+  </div>
+ </div>
+
+ <!-- 露营规划 -->
+ <div class="sheet-backdrop" id="camping-backdrop" onclick="backdropClose(event, 'camping-backdrop')">
+  <div class="sheet">
+  <div class="sheet-handle"></div>
+  <div class="top-row">
+  <div>
+   <p class="eyebrow">CAMPING ENERGY PLAN</p>
+   <h3>露营能源规划</h3>
+  </div>
+  <button class="icon-button" onclick="closeSheet('camping-backdrop')">×</button>
+  </div>
+
+  <p class="small muted">
+  选择设备和天数，AI会加入逆变损耗、温度影响和20%安全余量。
+  </p>
+
+  <h4>需要供电的设备</h4>
+  <div class="camp-grid">
+  <button class="camp-option selected" data-wh="420" onclick="toggleCampOption(this)">车载冰箱<br />420Wh/天</button>
+  <button class="camp-option selected" data-wh="120" onclick="toggleCampOption(this)">照明<br />120Wh/天</button>
+  <button class="camp-option selected" data-wh="180" onclick="toggleCampOption(this)">手机电脑<br />180Wh/天</button>
+  <button class="camp-option" data-wh="600" onclick="toggleCampOption(this)">电磁炉<br />600Wh/天</button>
+  <button class="camp-option" data-wh="300" onclick="toggleCampOption(this)">投影仪<br />300Wh/天</button>
+  <button class="camp-option" data-wh="90" onclick="toggleCampOption(this)">相机<br />90Wh/天</button>
+  </div>
+
+  <div class="range-row">
+  <label for="camp-days" class="small"><strong>露营天数：<span id="camp-days-label">2</span>天</strong></label>
+  <span class="pill">天气：晴间多云</span>
+  </div>
+  <input
+  id="camp-days"
+  type="range"
+  min="1"
+  max="5"
+  value="2"
+  style="width:100%; accent-color:var(--green);"
+  oninput="updateCampDays()"
+  />
+
+  <button class="button full" style="margin-top:16px;" onclick="calculateCamping()">
+  生成AI能源计划
+  </button>
+
+  <div class="camp-result" id="camp-result">
+  <span class="pill">推荐方案</span>
+  <h3 style="margin:10px 0 5px;" id="camp-product">户外电源＋太阳能板</h3>
+  <p class="small" id="camp-copy"></p>
+  <p class="tiny muted" style="margin:0;">
+   结果基于演示参数；实际出发前应根据设备额定功率与天气重新校验。
+  </p>
+  </div>
+  </div>
+ </div>
+
+ <div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toast-message">操作成功</span>
+ </div>
+ </div>
+
+ <aside class="side-panel control-panel">
+ <h2>演示控制台</h2>
+ <p>
+  面试演示时可从这里快速跳转状态。控制台只服务原型，不属于正式产品界面。
+ </p>
+
+ <div class="side-actions">
+  <button class="side-button" onclick="showScreen('home')">打开今日行动首页</button>
+  <button class="side-button" onclick="showScreen('energy')">体验AI错峰计划</button>
+  <button class="side-button" onclick="openAssistant('为什么这样安排？')">模拟AI语音问答</button>
+  <button class="side-button" onclick="openCamping()">生成露营能源计划</button>
+  <button class="side-button danger" onclick="simulateOutage()">模拟家庭停电</button>
+  <button class="side-button" onclick="settlePlan()">模拟次日节省结算</button>
+  <button class="side-button danger" onclick="resetDemo()">重置首次使用流程</button>
+ </div>
+
+ <div class="surface" style="margin-top:22px;">
+  <h4>当前AI协同状态</h4>
+  <div class="logic-step">
+  <span class="logic-number">1</span>
+  <div>
+  <strong>感知</strong>
+  <span>读取能源、费率、天气和设备状态。</span>
+  </div>
+  </div>
+  <div class="logic-step">
+  <span class="logic-number">2</span>
+  <div>
+  <strong>预测与优化</strong>
+  <span>预测未来24小时并由约束优化器选方案。</span>
+  </div>
+  </div>
+  <div class="logic-step">
+  <span class="logic-number">3</span>
+  <div>
+  <strong>解释与授权</strong>
+  <span>AI解释金额和依据，用户决定是否执行。</span>
+  </div>
+  </div>
+  <div class="logic-step">
+  <span class="logic-number">4</span>
+  <div>
+  <strong>执行与验证</strong>
+  <span>设备执行后，以反事实基线核算净节省。</span>
+  </div>
+  </div>
+ </div>
+ </aside>
+ </main>
+
+ <script>
+ const appState = {
+ onboardStep: 0,
+ goal: 'save',
+ dataSource: 'storage',
+ selectedPlan: 'ai',
+ planScheduled: false,
+ planSettled: false,
+ settledAmount: 0,
+ currentScreen: 'onboarding',
+ todaySaving: 1.25,
+ monthSaving: 18.50,
+ toastTimer: null
+ };
+
+ const screens = {
+ onboarding: document.getElementById('screen-onboarding'),
+ home: document.getElementById('screen-home'),
+ energy: document.getElementById('screen-energy'),
+ devices: document.getElementById('screen-devices'),
+ profile: document.getElementById('screen-profile'),
+ emergency: document.getElementById('screen-emergency')
+ };
+
+ document.querySelectorAll('.choice').forEach(function (choice) {
+ choice.addEventListener('click', function () {
+  const group = choice.closest('[data-choice-group]');
+  const groupName = group.getAttribute('data-choice-group');
+  group.querySelectorAll('.choice').forEach(function (item) {
+  item.classList.remove('selected');
+  });
+  choice.classList.add('selected');
+  appState[groupName] = choice.getAttribute('data-value');
+ });
+ });
+
+ document.querySelectorAll('.load-toggle').forEach(function (toggle) {
+ toggle.addEventListener('change', updateEmergencyRuntime);
+ });
+
+ function updateOnboardUI() {
+ document.querySelectorAll('.onboard-step').forEach(function (step, index) {
+  step.classList.toggle('active', index === appState.onboardStep);
+ });
+ document.querySelectorAll('.step-dot').forEach(function (dot, index) {
+  dot.classList.toggle('active', index === appState.onboardStep);
+ });
+ screens.onboarding.scrollTop = 0;
+ }
+
+ function nextOnboardStep() {
+ appState.onboardStep = Math.min(3, appState.onboardStep + 1);
+ updateOnboardUI();
+ }
+
+ function previousOnboardStep() {
+ appState.onboardStep = Math.max(0, appState.onboardStep - 1);
+ updateOnboardUI();
+ }
+
+ function startAnalysis() {
+ if (!document.getElementById('permission-energy').checked) {
+  showToast('需要能源数据权限才能生成个性化报告');
+  return;
+ }
+
+ appState.onboardStep = 3;
+ updateOnboardUI();
+ document.getElementById('analysis-loading').hidden = false;
+ document.getElementById('analysis-result').hidden = true;
+ document.getElementById('analysis-progress-text').textContent = '分析中';
+
+ window.setTimeout(function () {
+  document.getElementById('analysis-progress-text').textContent = '已完成';
+ }, 900);
+
+ window.setTimeout(function () {
+  const settings = {
+  storage: {
+  saving: '$286',
+  level: '完整自动优化能力',
+  confidence: '72%',
+  width: '72%'
+  },
+  meter: {
+  saving: '$168',
+  level: '监测与部分验证能力',
+  confidence: '61%',
+  width: '61%'
+  },
+  bill: {
+  saving: '$94',
+  level: '账单估算与建议能力',
+  confidence: '38%',
+  width: '38%'
+  }
+  };
+
+  const result = settings[appState.dataSource];
+  document.getElementById('onboard-saving').textContent = result.saving;
+  document.getElementById('onboard-level').textContent = result.level;
+  document.getElementById('confidence-label').textContent = result.confidence;
+  document.getElementById('confidence-fill').style.width = result.width;
+  document.getElementById('analysis-loading').hidden = true;
+  document.getElementById('analysis-result').hidden = false;
+ }, 1850);
+ }
+
+ function finishOnboarding() {
+ showScreen('home');
+ showToast('设定完成：AI只会在有显著价值时提醒你');
+ }
+
+ function showScreen(name) {
+ if (!screens[name]) return;
+
+ Object.keys(screens).forEach(function (key) {
+  screens[key].classList.toggle('active', key === name);
+ });
+
+ appState.currentScreen = name;
+ screens[name].scrollTop = 0;
+ document.getElementById('prototype-status-bar').classList.toggle(
+  'dark',
+  name === 'onboarding' || name === 'emergency'
+ );
+
+ const showMainNavigation = ['home', 'energy', 'devices', 'profile'].indexOf(name) >= 0;
+ document.getElementById('bottom-nav').classList.toggle('visible', showMainNavigation);
+ document.getElementById('ai-fab').classList.toggle('visible', showMainNavigation);
+
+ document.querySelectorAll('.nav-button').forEach(function (button) {
+  button.classList.toggle('active', button.getAttribute('data-target') === name);
+ });
+ }
+
+ function selectPlan(plan) {
+ appState.selectedPlan = plan;
+ document.querySelectorAll('.plan-card').forEach(function (card) {
+  card.classList.toggle('selected', card.getAttribute('data-plan') === plan);
+ });
+
+ const labels = {
+  habit: '保持18:00原计划',
+  ai: '确认并安排AI错峰计划',
+  green: '确认明日光伏优先计划'
+ };
+ document.getElementById('apply-plan-button').textContent = labels[plan];
+ }
+
+ function applyPlan() {
+ if (appState.selectedPlan === 'habit') {
+  appState.planScheduled = false;
+  showToast('已保留原充电习惯，本次预计不产生优化收益');
+  updateHomePlan();
+  return;
+ }
+
+ appState.planScheduled = true;
+ appState.planSettled = false;
+ updateHomePlan();
+ showToast(
+  appState.selectedPlan === 'ai'
+  ? '已安排22:00错峰充电，可随时撤销'
+  : '已安排明日光伏优先充电，请确认不会影响早间出发'
+ );
+
+ window.setTimeout(function () {
+  showScreen('home');
+ }, 650);
+ }
+
+ function updateHomePlan() {
+ const amount = document.getElementById('home-plan-amount');
+ const copy = document.getElementById('home-plan-copy');
+ const label = document.getElementById('home-plan-label');
+ const actions = document.getElementById('home-plan-actions');
+ const scheduleTitle = document.getElementById('schedule-title');
+ const scheduleSubtitle = document.getElementById('schedule-subtitle');
+ const schedulePill = document.getElementById('schedule-pill');
+
+ if (appState.planSettled) {
+  label.textContent = '昨日计划已完成';
+  amount.textContent = '实际净省 $' + appState.settledAmount.toFixed(2);
+  copy.textContent = appState.selectedPlan === 'green'
+  ? '已扣除约$0.07转换与电池损耗，光伏波动使结果略低于预测。'
+  : '已扣除约$0.04电池损耗，与预测$1.35相差3%。';
+  actions.innerHTML =
+  '<button class="button primary-light" onclick="showScreen(\'profile\')">查看节省归因</button>' +
+  '<button class="button ghost-light" onclick="openAssistant(\'节省是怎么算的？\')">查看算法</button>';
+  scheduleTitle.textContent = '今日能源计划等待生成';
+  scheduleSubtitle.textContent = '系统将在电价或天气更新后重新计算';
+  schedulePill.textContent = '已完成';
+ } else if (appState.planScheduled) {
+  label.textContent = '计划已确认';
+  amount.textContent = appState.selectedPlan === 'green' ? '预计省 $1.62' : '预计省 $1.35';
+  copy.textContent =
+  appState.selectedPlan === 'green'
+  ? '明日10:30使用光伏为汽车充电，预计6:05完成。'
+  : '今晚22:00开始低价充电，预计明早6:20完成。';
+  actions.innerHTML =
+  '<button class="button primary-light" onclick="showScreen(\'energy\')">调整计划</button>' +
+  '<button class="button ghost-light" onclick="cancelPlan()">撤销</button>';
+  scheduleTitle.textContent =
+  appState.selectedPlan === 'green' ? '明日光伏优先充电' : '22:00汽车错峰充电';
+  scheduleSubtitle.textContent =
+  appState.selectedPlan === 'green' ? '预计可再生能源占比91%' : '预计节省$1.35｜6:20完成';
+  schedulePill.textContent = '已确认';
+ } else {
+  label.textContent = '今日AI能源计划';
+  amount.textContent = '预计省 $2.10';
+  copy.textContent = '14:00—17:00电价最高，将汽车充电推迟至22:00可减少高价购电。';
+  actions.innerHTML =
+  '<button class="button primary-light" onclick="showScreen(\'energy\')">查看并执行</button>' +
+  '<button class="button ghost-light" onclick="openAssistant(\'为什么这样安排？\')">问问AI</button>';
+  scheduleTitle.textContent = '储能设备保持备用电量';
+  scheduleSubtitle.textContent = 'SOC 78%｜应急储备20%';
+  schedulePill.textContent = '自动';
+ }
+ }
+
+ function cancelPlan() {
+ appState.planScheduled = false;
+ appState.planSettled = false;
+ updateHomePlan();
+ showToast('AI错峰计划已撤销，设备恢复原设置');
+ }
+
+ function settlePlan() {
+ if (!appState.planScheduled) {
+  appState.selectedPlan = 'ai';
+  appState.planScheduled = true;
+ }
+
+ if (!appState.planSettled) {
+  appState.planSettled = true;
+  appState.settledAmount = appState.selectedPlan === 'green' ? 1.55 : 1.31;
+  appState.todaySaving += appState.settledAmount;
+  appState.monthSaving += appState.settledAmount;
+ }
+
+ updateSavingUI();
+ updateHomePlan();
+ showScreen('home');
+ showToast('结算完成：本次已验证净节省$' + appState.settledAmount.toFixed(2));
+ }
+
+ function updateSavingUI() {
+ document.getElementById('today-saving').textContent = '$' + appState.todaySaving.toFixed(2);
+ document.getElementById('month-saving').textContent = '$' + appState.monthSaving.toFixed(2);
+ document.getElementById('profile-saving').textContent = '$' + appState.monthSaving.toFixed(2);
+ }
+
+ function openAssistant(initialQuestion) {
+ document.getElementById('assistant-backdrop').classList.add('open');
+ if (initialQuestion) {
+  window.setTimeout(function () {
+  askAI(initialQuestion);
+  }, 180);
+ }
+ }
+
+ function closeSheet(id) {
+ document.getElementById(id).classList.remove('open');
+ }
+
+ function backdropClose(event, id) {
+ if (event.target.id === id) closeSheet(id);
+ }
+
+ function appendBubble(role, text) {
+ const bubble = document.createElement('div');
+ bubble.className = 'bubble ' + role;
+ bubble.textContent = text;
+ document.getElementById('chat').appendChild(bubble);
+ bubble.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+ }
+
+ function askAI(question) {
+ if (!question) return;
+ appendBubble('user', question);
+
+ const responses = {
+  '为什么这样安排？':
+  '14:00—17:00电价为$0.41/kWh，22:00后降至$0.14/kWh。结合汽车明早7:00出发目标、5.2kWh需求和储能设备 20%应急储备，22:00开始是当前成本最低且不影响出行的可行方案。',
+  '展示完整推理依据':
+  '输入包括：电价曲线、未来24小时光伏预测、家庭负载、储能设备 SOC、充放电效率、电池损耗和出发时间。预测模型输出区间，约束优化器选择计划，我只负责把结果解释成可理解的语言。',
+  '这个月省了多少钱？':
+  '本月已验证净节省$' + appState.monthSaving.toFixed(2) + '。其中峰谷移电贡献约62%，光伏自用贡献约31%，异常耗电处理贡献约7%。',
+  '开启省电模式':
+  '可以准备低风险省电计划，但关闭设备可能影响使用体验。请在手机上确认：延迟洗碗机、限制汽车高价充电，并保留冰箱、网络和安防。你要继续吗？',
+  '解释今天的能源计划':
+  '今天阳光充足，但14:00后光伏下降且进入高价时段。系统先用光伏供给家庭并补充储能，再把汽车充电移到22:00后。',
+  '节省是怎么算的？':
+  appState.selectedPlan === 'green'
+  ? '本次将原习惯反事实成本$3.80与光伏优先成本$2.18比较，再扣除约$0.07转换及电池损耗，得到已验证净节省$1.55。'
+  : '本次将“按原习惯18:00充电的反事实成本$3.80”与“实际调度成本$2.45”比较，再扣除约$0.04电池损耗，得到已验证净节省$1.31。',
+  '这个建议有风险吗？':
+  '主要风险是临时提前出发或电价数据更新。系统会保留20%应急电量；如果出发时间改变，你可以立即撤销计划。',
+  '关闭全部设备':
+  '这是高风险控制，我不能仅凭语音直接执行。请在手机端选择要关闭的设备，并通过二次确认。冰箱、网络和安防默认不会被关闭。'
+ };
+
+ let answer = responses[question];
+ if (!answer) {
+  const normalized = question.toLowerCase();
+  if (normalized.indexOf('风险') >= 0) {
+  answer = responses['这个建议有风险吗？'];
+  } else if (normalized.indexOf('省') >= 0 || normalized.indexOf('钱') >= 0) {
+  answer = responses['这个月省了多少钱？'];
+  } else if (normalized.indexOf('关闭') >= 0 || normalized.indexOf('控制') >= 0) {
+  answer = responses['关闭全部设备'];
+  } else {
+  answer = '我可以继续分析，但当前原型只连接了能源、费率、天气和演示设备数据。正式产品会同时展示数据时间、置信度和可执行范围。';
+  }
+ }
+
+ window.setTimeout(function () {
+  appendBubble('ai', answer);
+ }, 520);
+ }
+
+ function submitChatOnEnter(event) {
+ if (event.key !== 'Enter') return;
+ const input = event.target;
+ const value = input.value.trim();
+ if (!value) return;
+ askAI(value);
+ input.value = '';
+ }
+
+ function simulateVoice() {
+ const button = document.getElementById('mic-button');
+ const input = document.getElementById('voice-input');
+ button.classList.add('listening');
+ input.placeholder = '正在模拟识别语音…';
+
+ window.setTimeout(function () {
+  button.classList.remove('listening');
+  input.placeholder = '输入问题，或点击麦克风模拟语音…';
+  askAI('这个月省了多少钱？');
+ }, 1100);
+ }
+
+ function openCamping() {
+ document.getElementById('camping-backdrop').classList.add('open');
+ document.getElementById('camp-result').classList.remove('show');
+ }
+
+ function toggleCampOption(button) {
+ button.classList.toggle('selected');
+ document.getElementById('camp-result').classList.remove('show');
+ }
+
+ function updateCampDays() {
+ document.getElementById('camp-days-label').textContent =
+  document.getElementById('camp-days').value;
+ document.getElementById('camp-result').classList.remove('show');
+ }
+
+ function calculateCamping() {
+ const days = Number(document.getElementById('camp-days').value);
+ let dailyWh = 0;
+
+ document.querySelectorAll('.camp-option.selected').forEach(function (option) {
+  dailyWh += Number(option.getAttribute('data-wh'));
+ });
+
+ if (dailyWh === 0) {
+  showToast('请至少选择一种需要供电的设备');
+  return;
+ }
+
+ const requiredWh = dailyWh * days * 1.2;
+ let product = '储能设备（基础款）';
+ if (requiredWh > 1700 && requiredWh <= 3200) product = '储能设备（中容量）＋200W 太阳能板';
+ if (requiredWh > 3200) product = '储能设备（大容量）＋400W 太阳能板';
+
+ const productCapacity =
+  product.indexOf('大容量') >= 0 ? 2048 :
+  product.indexOf('中容量') >= 0 ? 1056 : 768;
+ const solarDaily = product.indexOf('400W') >= 0 ? 1280 :
+  product.indexOf('200W') >= 0 ? 640 : 0;
+ const available = productCapacity + solarDaily * Math.max(0, days - 1);
+ const coverage = Math.min(120, Math.round((available / Math.max(requiredWh, 1)) * 100));
+
+ document.getElementById('camp-product').textContent = product;
+ document.getElementById('camp-copy').textContent =
+  '预计总需求约' + Math.round(requiredWh) + 'Wh（含20%安全余量），方案覆盖率约' +
+  coverage + '%。如连续阴天，建议减少电磁炉或投影仪使用。';
+ document.getElementById('camp-result').classList.add('show');
+ }
+
+ function simulateOutage() {
+ document.getElementById('emergency-active').style.display = 'block';
+ document.getElementById('restored-panel').classList.remove('show');
+ document.querySelectorAll('.load-toggle').forEach(function (toggle) {
+  toggle.checked = true;
+ });
+ updateEmergencyRuntime();
+ showScreen('emergency');
+ }
+
+ function updateEmergencyRuntime() {
+ let watts = 0;
+ document.querySelectorAll('.load-toggle').forEach(function (toggle) {
+  if (toggle.checked) watts += Number(toggle.getAttribute('data-watts'));
+ });
+
+ const runtime = 5520 / Math.max(watts, 1);
+ document.getElementById('load-watts').textContent = watts + 'W';
+ document.getElementById('runtime-value').textContent = runtime.toFixed(1);
+
+ const criticalRuntime = 5520 / 360;
+ document.getElementById('potential-runtime').textContent = criticalRuntime.toFixed(1);
+ }
+
+ function applyCriticalPlan() {
+ document.querySelectorAll('.optional-load').forEach(function (toggle) {
+  toggle.checked = false;
+ });
+ updateEmergencyRuntime();
+ showToast('已选择关键负载方案，等待最终确认');
+ }
+
+ function confirmEmergencyPlan() {
+ updateEmergencyRuntime();
+ showToast('应急负载方案已确认，认证硬件正在执行');
+ }
+
+ function restorePower() {
+ document.getElementById('emergency-active').style.display = 'none';
+ document.getElementById('restored-panel').classList.add('show');
+ }
+
+ function exitEmergency() {
+ showScreen('home');
+ showToast('应急事件已结束，报告将在10分钟后生成');
+ }
+
+ function showToast(message) {
+ const toast = document.getElementById('toast');
+ document.getElementById('toast-message').textContent = message;
+ toast.classList.add('show');
+
+ if (appState.toastTimer) window.clearTimeout(appState.toastTimer);
+ appState.toastTimer = window.setTimeout(function () {
+  toast.classList.remove('show');
+ }, 2600);
+ }
+
+ function resetDemo() {
+ appState.onboardStep = 0;
+ appState.goal = 'save';
+ appState.dataSource = 'storage';
+ appState.selectedPlan = 'ai';
+ appState.planScheduled = false;
+ appState.planSettled = false;
+ appState.settledAmount = 0;
+ appState.todaySaving = 1.25;
+ appState.monthSaving = 18.50;
+
+ document.querySelectorAll('.choice').forEach(function (choice) {
+  const group = choice.closest('[data-choice-group]').getAttribute('data-choice-group');
+  const shouldSelect =
+  (group === 'goal' && choice.getAttribute('data-value') === 'save') ||
+  (group === 'dataSource' && choice.getAttribute('data-value') === 'storage');
+  choice.classList.toggle('selected', shouldSelect);
+ });
+
+ document.querySelectorAll('.plan-card').forEach(function (card) {
+  card.classList.toggle('selected', card.getAttribute('data-plan') === 'ai');
+ });
+
+ document.getElementById('apply-plan-button').textContent = '确认并安排AI错峰计划';
+ document.getElementById('analysis-loading').hidden = false;
+ document.getElementById('analysis-result').hidden = true;
+ updateOnboardUI();
+ updateSavingUI();
+ updateHomePlan();
+ closeSheet('assistant-backdrop');
+ closeSheet('camping-backdrop');
+ showScreen('onboarding');
+ }
+
+ updateSavingUI();
+ updateHomePlan();
+ </script>
+</body>
+</html>
